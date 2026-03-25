@@ -23,9 +23,8 @@ Armor type follows the same class mapping used in `EZInventory`:
 
 Tracked sets:
 
-- `Plate` / Blightforged Warlord
-- `Chain` / Rotfang Hunter
-- `Leather` / Blightclaw Stalker
-- `Cloth` / Moorshade Magus
+Tiers 10, 11 and 12 are tested.
+
+Tiers 1 - 9 have data, but have not been tested yet.
 
 Each tracked set currently checks all seven armor pieces and counts ownership from inventory plus bank.
