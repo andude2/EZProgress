@@ -1503,6 +1503,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
     }
     local tier_component_config = get_tier_component_config(selected_tier, armor_type)
     local shared_components = tier_component_config and get_component_counts(tier_component_config.component_names) or nil
+    local has_tier_component_config = tier_component_config ~= nil
 
     for _, item_name in ipairs(set_config.pieces) do
         local piece_def = normalize_piece_def(item_name)
@@ -1513,13 +1514,14 @@ local function build_local_progress(tier_key, tier_10_faction_key)
         end
         local count = direct_count + alternate_count
         local owned = direct_count > 0
+        local has_alternate = alternate_count > 0
         local component_requirements = nil
         local component_counts = nil
         local has_required_components = false
-        local status_code = owned and 'armor' or (alternate_count > 0 and 'pattern' or 'missing')
-        local status_text = owned and 'Done' or (alternate_count > 0 and 'Have Pattern' or 'Missing')
+        local status_code = owned and 'armor' or (has_alternate and 'pattern' or 'missing')
+        local status_text = owned and 'Done' or (has_alternate and 'Have Pattern' or 'Missing')
 
-        if tier_component_config and piece_def.slot and tier_component_config.component_requirements[piece_def.slot] then
+        if has_tier_component_config and piece_def.slot and tier_component_config.component_requirements[piece_def.slot] then
             component_requirements = tier_component_config.component_requirements[piece_def.slot]
             component_counts = {}
             for key, count in pairs(shared_components or {}) do
@@ -1532,10 +1534,10 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             if direct_count > 0 then
                 status_code = 'armor'
                 status_text = 'Done'
-            elseif alternate_count > 0 and has_required_components then
+            elseif has_alternate and has_required_components then
                 status_code = 'ready'
                 status_text = 'Ready to combine'
-            elseif alternate_count > 0 then
+            elseif has_alternate then
                 status_code = 'pattern'
                 status_text = 'Missing Components'
             elseif total_components > 0 then
@@ -1545,6 +1547,9 @@ local function build_local_progress(tier_key, tier_10_faction_key)
                 status_code = 'missing'
                 status_text = 'Missing Both'
             end
+        elseif has_alternate then
+            status_code = 'armor'
+            status_text = 'Done'
         end
         if status_code == 'armor' then
             progress.completed = progress.completed + 1
@@ -1744,7 +1749,7 @@ local function render_piece_row(piece)
     if ImGui.IsItemHovered() then
         local lines = { string.format('Armor: %d', piece.direct_count or 0) }
         if piece.alternates and #piece.alternates > 0 then
-            table.insert(lines, string.format('Pattern: %d', piece.alternate_count or 0))
+            table.insert(lines, string.format('Alternates: %d', piece.alternate_count or 0))
             for _, alternate_name in ipairs(piece.alternates) do
                 table.insert(lines, alternate_name)
             end
