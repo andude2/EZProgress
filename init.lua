@@ -1509,8 +1509,16 @@ local function build_local_progress(tier_key, tier_10_faction_key)
         local piece_def = normalize_piece_def(item_name)
         local direct_count = count_item_owned(piece_def.name)
         local alternate_count = 0
+        local owned_item_name = nil
+        if direct_count > 0 then
+            owned_item_name = piece_def.name
+        end
         for _, alternate_name in ipairs(piece_def.alternates or {}) do
-            alternate_count = alternate_count + count_item_owned(alternate_name)
+            local alt_count = count_item_owned(alternate_name)
+            alternate_count = alternate_count + alt_count
+            if alt_count > 0 and not owned_item_name then
+                owned_item_name = alternate_name
+            end
         end
         local count = direct_count + alternate_count
         local owned = direct_count > 0
@@ -1560,6 +1568,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             count = count,
             direct_count = direct_count,
             alternate_count = alternate_count,
+            owned_item_name = owned_item_name,
             alternates = piece_def.alternates,
             component_counts = component_counts,
             component_requirements = component_requirements,
@@ -1733,7 +1742,8 @@ local function render_piece_row(piece)
     end
     colored_text(marker_color, marker_text)
     ImGui.SameLine(0, 6)
-    ImGui.Text(piece.name)
+    local display_name = piece.owned_item_name or piece.name
+    ImGui.Text(display_name)
     ImGui.SameLine()
     colored_text(COLOR_MUTED, string.format('(%d)', piece.count or 0))
     if piece.status_code == 'pattern' and piece.alternate_count and piece.alternate_count > 0 and (piece.direct_count or 0) == 0 then
@@ -2492,7 +2502,7 @@ local function render_slot_summary_table(slot_name)
                     local lines = {
                         string.format('%s', piece.name or 'Unknown'),
                         string.format('Armor: %d', piece.direct_count or 0),
-                        string.format('Pattern: %d', piece.alternate_count or 0),
+                        string.format('Alternates: %d', piece.alternate_count or 0),
                     }
                     if piece.component_counts and piece.component_requirements then
                         append_component_tooltip_lines(lines, piece)
