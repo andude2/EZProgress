@@ -530,7 +530,7 @@ local TIER_11_SETS_BY_ARMOR_TYPE = {
     },
 }
 local TIER_11_COLD_BARGAIN_ITEMS = {
-    frostbloom = 'Crystallized Frostbloom',
+    frostbloom = 'Crystalized Frostbloom',
     pelt = 'Glacierbound Pelt',
     gem = 'Northern Lights Gem',
 }
@@ -2420,11 +2420,15 @@ local function render_peer_summary_table()
                     ImGui.TableNextColumn()
                     if progress.tier_key == 'Tier 11' and progress.cold_bargain and progress.cold_bargain.item_counts then
                         local cold_bargain = progress.cold_bargain
-                        local count = cold_bargain.item_counts[key] or 0
-                        local color = count >= TIER_11_COLD_BARGAIN_REQUIRED and COLOR_COMPLETE or COLOR_INCOMPLETE
-                        local text = string.format('%d/%d', count, TIER_11_COLD_BARGAIN_REQUIRED)
-                        if key == 'gem' and cold_bargain.reward_owned then
-                            text = text .. ' ✓'
+                        local text
+                        local color
+                        if cold_bargain.reward_owned then
+                            text = 'Done'
+                            color = COLOR_COMPLETE
+                        else
+                            local count = cold_bargain.item_counts[key] or 0
+                            color = count >= TIER_11_COLD_BARGAIN_REQUIRED and COLOR_COMPLETE or COLOR_INCOMPLETE
+                            text = string.format('%d/%d', count, TIER_11_COLD_BARGAIN_REQUIRED)
                         end
                         colored_text(color, text)
                         if ImGui.IsItemHovered() then
