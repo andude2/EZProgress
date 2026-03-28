@@ -1934,4 +1934,512 @@ M['Tier 9'] = {
     },
 }
 
+M.default_tier_key = 'Tier 12'
+
+M.tier_order = {
+    'Tier 1',
+    'Tier 2',
+    'Tier 3',
+    'Tier 4',
+    'Tier 5',
+    'Tier 6',
+    'Tier 7',
+    'Tier 8',
+    'Tier 9',
+    'Tier 10',
+    'Tier 11',
+    M.default_tier_key,
+    'Tier 12.5',
+}
+
+M.faction_targets = {
+    ['stone sergeant grognir'] = {
+        name = 'Stone Sergeant Grognir',
+        faction_name = 'Faydwer Alliance',
+        zone = 'sunderock',
+    },
+    ['grand summoner agwin'] = {
+        name = 'Grand Summoner Agwin',
+        faction_name = 'Indigo Vanguard',
+    },
+    ['warlord asmodae'] = {
+        name = 'Warlord Asmodae',
+        faction_name = 'Cabilis Foreign Legion',
+    },
+}
+
+M.faction_rank_to_slot = {
+    Dubious = 'Feet',
+    Apprehensive = 'Wrist',
+    Indifferent = 'Head',
+    Amiable = 'Hands',
+    Kindly = 'Arms',
+    Warmly = 'Legs',
+    Ally = 'Chest',
+}
+
+M.class_to_armor_type = {
+    war = 'Plate', warrior = 'Plate',
+    clr = 'Plate', cleric = 'Plate',
+    pal = 'Plate', paladin = 'Plate',
+    shd = 'Plate', shadowknight = 'Plate',
+    brd = 'Plate', bard = 'Plate',
+    rng = 'Chain', ranger = 'Chain',
+    rog = 'Chain', rogue = 'Chain',
+    shm = 'Chain', shaman = 'Chain',
+    ber = 'Chain', berserker = 'Chain',
+    nec = 'Cloth', necromancer = 'Cloth',
+    wiz = 'Cloth', wizard = 'Cloth',
+    mag = 'Cloth', magician = 'Cloth',
+    enc = 'Cloth', enchanter = 'Cloth',
+    dru = 'Leather', druid = 'Leather',
+    mnk = 'Leather', monk = 'Leather',
+    bst = 'Leather', beastlord = 'Leather',
+}
+
+M['Tier 9'].component_names_by_armor_type = {
+    Plate = {
+        sheets = 'High Quality Metal',
+        blood = 'Shadow Blood',
+        carapace = 'Large Fire Beetle Carapace',
+        bone = 'Cursed Bone Chips',
+    },
+    Chain = {
+        sheets = 'High Quality Metal',
+        carapace = 'Large Fire Beetle Carapace',
+        bone = 'Cursed Bone Chips',
+        skin = 'Shiny Snake Skin',
+        oil = 'Smelly Fish Oil',
+    },
+    Leather = {
+        skins = 'High Quality Animal Skin',
+        snake = 'Shiny Snake Skin',
+        oil = 'Smelly Fish Oil',
+        blood = 'Shadow Blood',
+    },
+    Cloth = {
+        silk = 'Strong Spider Silk',
+        lightstone = 'Glowing Lightstone',
+        bone = 'Cursed Bone Chips',
+        blood = 'Shadow Blood',
+    },
+}
+
+M['Tier 9'].component_requirements_by_armor_type = {
+    Plate = {
+        Chest = { sheets = 5, blood = 1, carapace = 1 },
+        Legs = { sheets = 4, blood = 1, carapace = 1 },
+        Arms = { sheets = 3, blood = 1, bone = 1 },
+        Head = { sheets = 3, blood = 1, bone = 1 },
+        Wrist = { sheets = 2, blood = 1 },
+        Feet = { sheets = 2, blood = 1 },
+        Hands = { sheets = 2, blood = 1 },
+    },
+    Chain = {
+        Chest = { sheets = 3, carapace = 2, bone = 1, skin = 1 },
+        Legs = { sheets = 2, carapace = 2, bone = 1, skin = 1 },
+        Arms = { sheets = 2, carapace = 1, bone = 1, oil = 1 },
+        Head = { sheets = 2, carapace = 1, bone = 1, oil = 1 },
+        Wrist = { sheets = 1, carapace = 1, bone = 1 },
+        Feet = { sheets = 1, carapace = 1, bone = 1 },
+        Hands = { sheets = 1, carapace = 1, bone = 1 },
+    },
+    Leather = {
+        Chest = { skins = 4, snake = 1, oil = 1 },
+        Legs = { skins = 3, snake = 1, oil = 1 },
+        Arms = { skins = 2, snake = 1, blood = 1 },
+        Head = { skins = 2, snake = 1, blood = 1 },
+        Wrist = { skins = 1, snake = 1 },
+        Feet = { skins = 1, snake = 1 },
+        Hands = { skins = 1, snake = 1 },
+    },
+    Cloth = {
+        Chest = { silk = 3, lightstone = 1, bone = 1 },
+        Legs = { silk = 3, lightstone = 1, bone = 1 },
+        Arms = { silk = 2, lightstone = 1, blood = 1 },
+        Head = { silk = 2, lightstone = 1, blood = 1 },
+        Wrist = { silk = 1, lightstone = 1 },
+        Feet = { silk = 1, lightstone = 1 },
+        Hands = { silk = 1, lightstone = 1 },
+    },
+}
+
+M['Tier 10'] = {
+    label = 'Tier 10',
+    default_faction = 'Faydwer Alliance',
+    faction_choices = {
+        {
+            key = 'Faydwer Alliance',
+            label = 'Orc (Faydwer)',
+            target_name = 'Stone Sergeant Grognir',
+        },
+        {
+            key = 'Indigo Vanguard',
+            label = 'Goblin (Indigo)',
+            target_name = 'Grand Summoner Agwin',
+        },
+        {
+            key = 'Cabilis Foreign Legion',
+            label = 'Sarnak (Cabilis)',
+            target_name = 'Warlord Asmodae',
+        },
+    },
+    sets_by_armor_type = {
+        Plate = {
+            ['Faydwer Alliance'] = {
+                set_name = 'Brutish Enforcer',
+                pieces = {
+                    make_piece_def('Helm of the Brutish Enforcer', 'Head'),
+                    make_piece_def('Cuirass of the Brutish Enforcer', 'Chest'),
+                    make_piece_def('Vambraces of the Brutish Enforcer', 'Arms'),
+                    make_piece_def('Wristplates of the Brutish Enforcer', 'Wrist'),
+                    make_piece_def('Greaves of the Brutish Enforcer', 'Legs'),
+                    make_piece_def('Gauntlets of the Brutish Enforcer', 'Hands'),
+                    make_piece_def('Boots of the Brutish Enforcer', 'Feet'),
+                },
+            },
+            ['Indigo Vanguard'] = {
+                set_name = 'Cunning Brawler',
+                pieces = {
+                    make_piece_def('Helm of the Cunning Brawler', 'Head'),
+                    make_piece_def('Cuirass of the Cunning Brawler', 'Chest'),
+                    make_piece_def('Vambraces of the Cunning Brawler', 'Arms'),
+                    make_piece_def('Wristplates of the Cunning Brawler', 'Wrist'),
+                    make_piece_def('Greaves of the Cunning Brawler', 'Legs'),
+                    make_piece_def('Gauntlets of the Cunning Brawler', 'Hands'),
+                    make_piece_def('Boots of the Cunning Brawler', 'Feet'),
+                },
+            },
+            ['Cabilis Foreign Legion'] = {
+                set_name = 'Imposing Sentinel',
+                pieces = {
+                    make_piece_def('Helm of the Imposing Sentinel', 'Head'),
+                    make_piece_def('Cuirass of the Imposing Sentinel', 'Chest'),
+                    make_piece_def('Vambraces of the Imposing Sentinel', 'Arms'),
+                    make_piece_def('Wristplates of the Imposing Sentinel', 'Wrist'),
+                    make_piece_def('Greaves of the Imposing Sentinel', 'Legs'),
+                    make_piece_def('Gauntlets of the Imposing Sentinel', 'Hands'),
+                    make_piece_def('Boots of the Imposing Sentinel', 'Feet'),
+                },
+            },
+        },
+        Chain = {
+            ['Faydwer Alliance'] = {
+                set_name = 'Feral Enforcer',
+                pieces = {
+                    make_piece_def('Crown of the Feral Enforcer', 'Head'),
+                    make_piece_def('Mail of the Feral Enforcer', 'Chest'),
+                    make_piece_def('Armguards of the Feral Enforcer', 'Arms'),
+                    make_piece_def('Wristguards of the Feral Enforcer', 'Wrist'),
+                    make_piece_def('Greaves of the Feral Enforcer', 'Legs'),
+                    make_piece_def('Mitts of the Feral Enforcer', 'Hands'),
+                    make_piece_def('Boots of the Feral Enforcer', 'Feet'),
+                },
+            },
+            ['Indigo Vanguard'] = {
+                set_name = 'Crafty Brawler',
+                pieces = {
+                    make_piece_def('Crown of the Crafty Brawler', 'Head'),
+                    make_piece_def('Mail of the Crafty Brawler', 'Chest'),
+                    make_piece_def('Armguards of the Crafty Brawler', 'Arms'),
+                    make_piece_def('Wristguards of the Crafty Brawler', 'Wrist'),
+                    make_piece_def('Greaves of the Crafty Brawler', 'Legs'),
+                    make_piece_def('Mitts of the Crafty Brawler', 'Hands'),
+                    make_piece_def('Boots of the Crafty Brawler', 'Feet'),
+                },
+            },
+            ['Cabilis Foreign Legion'] = {
+                set_name = 'Towering Sentinel',
+                pieces = {
+                    make_piece_def('Crown of the Towering Sentinel', 'Head'),
+                    make_piece_def('Mail of the Towering Sentinel', 'Chest'),
+                    make_piece_def('Armguards of the Towering Sentinel', 'Arms'),
+                    make_piece_def('Wristguards of the Towering Sentinel', 'Wrist'),
+                    make_piece_def('Greaves of the Towering Sentinel', 'Legs'),
+                    make_piece_def('Mitts of the Towering Sentinel', 'Hands'),
+                    make_piece_def('Boots of the Towering Sentinel', 'Feet'),
+                },
+            },
+        },
+        Leather = {
+            ['Faydwer Alliance'] = {
+                set_name = 'Bestial Enforcer',
+                pieces = {
+                    make_piece_def('Skullcap of the Bestial Enforcer', 'Head'),
+                    make_piece_def('Robe of the Bestial Enforcer', 'Chest'),
+                    make_piece_def('Sleeves of the Bestial Enforcer', 'Arms'),
+                    make_piece_def('Wristwraps of the Bestial Enforcer', 'Wrist'),
+                    make_piece_def('Pantaloons of the Bestial Enforcer', 'Legs'),
+                    make_piece_def('Gloves of the Bestial Enforcer', 'Hands'),
+                    make_piece_def('Boots of the Bestial Enforcer', 'Feet'),
+                },
+            },
+            ['Indigo Vanguard'] = {
+                set_name = 'Shifty Brawler',
+                pieces = {
+                    make_piece_def('Skullcap of the Shifty Brawler', 'Head'),
+                    make_piece_def('Robe of the Shifty Brawler', 'Chest'),
+                    make_piece_def('Sleeves of the Shifty Brawler', 'Arms'),
+                    make_piece_def('Wristwraps of the Shifty Brawler', 'Wrist'),
+                    make_piece_def('Pantaloons of the Shifty Brawler', 'Legs'),
+                    make_piece_def('Gloves of the Shifty Brawler', 'Hands'),
+                    make_piece_def('Boots of the Shifty Brawler', 'Feet'),
+                },
+            },
+            ['Cabilis Foreign Legion'] = {
+                set_name = 'Ominous Sentinel',
+                pieces = {
+                    make_piece_def('Skullcap of the Ominous Sentinel', 'Head'),
+                    make_piece_def('Robe of the Ominous Sentinel', 'Chest'),
+                    make_piece_def('Sleeves of the Ominous Sentinel', 'Arms'),
+                    make_piece_def('Wristwraps of the Ominous Sentinel', 'Wrist'),
+                    make_piece_def('Pantaloons of the Ominous Sentinel', 'Legs'),
+                    make_piece_def('Gloves of the Ominous Sentinel', 'Hands'),
+                    make_piece_def('Boots of the Ominous Sentinel', 'Feet'),
+                },
+            },
+        },
+        Cloth = {
+            ['Faydwer Alliance'] = {
+                set_name = 'Corporeal Enforcer',
+                pieces = {
+                    make_piece_def('Cowl of the Corporeal Enforcer', 'Head'),
+                    make_piece_def('Robes of the Corporeal Enforcer', 'Chest'),
+                    make_piece_def('Sleeves of the Corporeal Enforcer', 'Arms'),
+                    make_piece_def('Wristcuffs of the Corporeal Enforcer', 'Wrist'),
+                    make_piece_def('Breeches of the Corporeal Enforcer', 'Legs'),
+                    make_piece_def('Gloves of the Corporeal Enforcer', 'Hands'),
+                    make_piece_def('Slippers of the Corporeal Enforcer', 'Feet'),
+                },
+            },
+            ['Indigo Vanguard'] = {
+                set_name = 'Astute Brawler',
+                pieces = {
+                    make_piece_def('Cowl of the Astute Brawler', 'Head'),
+                    make_piece_def('Robes of the Astute Brawler', 'Chest'),
+                    make_piece_def('Sleeves of the Astute Brawler', 'Arms'),
+                    make_piece_def('Wristcuffs of the Astute Brawler', 'Wrist'),
+                    make_piece_def('Breeches of the Astute Brawler', 'Legs'),
+                    make_piece_def('Gloves of the Astute Brawler', 'Hands'),
+                    make_piece_def('Slippers of the Astute Brawler', 'Feet'),
+                },
+            },
+            ['Cabilis Foreign Legion'] = {
+                set_name = 'Striking Sentinel',
+                pieces = {
+                    make_piece_def('Cowl of the Striking Sentinel', 'Head'),
+                    make_piece_def('Robes of the Striking Sentinel', 'Chest'),
+                    make_piece_def('Sleeves of the Striking Sentinel', 'Arms'),
+                    make_piece_def('Wristcuffs of the Striking Sentinel', 'Wrist'),
+                    make_piece_def('Breeches of the Striking Sentinel', 'Legs'),
+                    make_piece_def('Gloves of the Striking Sentinel', 'Hands'),
+                    make_piece_def('Slippers of the Striking Sentinel', 'Feet'),
+                },
+            },
+        },
+    },
+}
+
+M['Tier 11'] = {
+    label = 'Tier 11',
+    component_names = {
+        major = 'Major Drakkel Shard',
+        minor = 'Minor Drakkel Shard',
+        water = 'Cooled Drakkel Water',
+    },
+    component_requirements = {
+        Chest = { major = 5, minor = 2, water = 1 },
+        Legs = { major = 4, minor = 2, water = 1 },
+        Arms = { major = 3, minor = 1, water = 3 },
+        Hands = { major = 3, minor = 1, water = 3 },
+        Head = { major = 2, minor = 2, water = 3 },
+        Wrist = { major = 1, minor = 2, water = 4 },
+        Feet = { major = 1, minor = 2, water = 4 },
+    },
+    cold_bargain = {
+        items = {
+            frostbloom = 'Crystalized Frostbloom',
+            pelt = 'Glacierbound Pelt',
+            gem = 'Northern Lights Gem',
+        },
+        required = 3,
+        reward = 'Mount Dhoom',
+    },
+    sets_by_armor_type = {
+        Plate = {
+            class_group = 'Plate',
+            set_name = 'King Tormax',
+            pieces = {
+                make_piece_def('Plate Helmet of King Tormax', 'Head', { 'Kael Plate Head Pattern' }),
+                make_piece_def('Breastplate of King Tormax', 'Chest', { 'Kael Plate Chest Pattern' }),
+                make_piece_def('Plate Armguards of King Tormax', 'Arms', { 'Kael Plate Arms Pattern' }),
+                make_piece_def('Plate Wristguards of King Tormax', 'Wrist', { 'Kael Plate Wrist Pattern' }),
+                make_piece_def('Legplates of King Tormax', 'Legs', { 'Kael Plate Legs Pattern' }),
+                make_piece_def('Plate Handguards of King Tormax', 'Hands', { 'Kael Plate Hands Pattern' }),
+                make_piece_def('Plate Sabatons of King Tormax', 'Feet', { 'Kael Plate Feet Pattern' }),
+            },
+        },
+        Chain = {
+            class_group = 'Chain',
+            set_name = 'Fjordavind the Fearless',
+            pieces = {
+                make_piece_def('Chain Helmet of Fjordavind the Fearless', 'Head', { 'Kael Chain Head Pattern' }),
+                make_piece_def('Chain Hauberk of Fjordavind the Fearless', 'Chest', { 'Kael Chain Chest Pattern' }),
+                make_piece_def('Chain Armguards of Fjordavind the Fearless', 'Arms', { 'Kael Chain Arms Pattern' }),
+                make_piece_def('Chain Bindings of Fjordavind the Fearless', 'Wrist', { 'Kael Chain Wrist Pattern' }),
+                make_piece_def('Chain Legguards of Fjordavind the Fearless', 'Legs', { 'Kael Chain Legs Pattern' }),
+                make_piece_def('Chain Handguards of Fjordavind the Fearless', 'Hands', { 'Kael Chain Hands Pattern' }),
+                make_piece_def('Chain Sabatons of Fjordavind the Fearless', 'Feet', { 'Kael Chain Feet Pattern' }),
+            },
+        },
+        Cloth = {
+            class_group = 'Cloth',
+            set_name = 'Velketor the Sorcerer',
+            pieces = {
+                make_piece_def('Silk Crown of Velketor the Sorcerer', 'Head', { 'Kael Silk Head Pattern' }),
+                make_piece_def('Silk Robes of Velketor the Sorcerer', 'Chest', { 'Kael Silk Chest Pattern' }),
+                make_piece_def('Silk Sleeves of Velketor the Sorcerer', 'Arms', { 'Kael Silk Arms Pattern' }),
+                make_piece_def('Silk Wristguards of Velketor the Sorcerer', 'Wrist', { 'Kael Silk Wrist Pattern' }),
+                make_piece_def('Silk Leggings of Velketor the Sorcerer', 'Legs', { 'Kael Silk Legs Pattern' }),
+                make_piece_def('Silk Gloves of Velketor the Sorcerer', 'Hands', { 'Kael Silk Hands Pattern' }),
+                make_piece_def('Silk Slippers of Velketor the Sorcerer', 'Feet', { 'Kael Silk Feet Pattern' }),
+            },
+        },
+        Leather = {
+            class_group = 'Leather',
+            set_name = 'Ragnar Fjordason',
+            pieces = {
+                make_piece_def('Leather Hood of Ragnar Fjordason', 'Head', { 'Kael Leather Head Pattern' }),
+                make_piece_def('Leather Vest of Ragnar Fjordason', 'Chest', { 'Kael Leather Chest Pattern' }),
+                make_piece_def('Leather Sleeves of Ragnar Fjordason', 'Arms', { 'Kael Leather Arms Pattern' }),
+                make_piece_def('Leather Bindings of Ragnar Fjordason', 'Wrist', { 'Kael Leather Wrist Pattern' }),
+                make_piece_def('Leather Leggings of Ragnar Fjordason', 'Legs', { 'Kael Leather Legs Pattern' }),
+                make_piece_def('Leather Grasps of Ragnar Fjordason', 'Hands', { 'Kael Leather Hands Pattern' }),
+                make_piece_def('Leather Boots of Ragnar Fjordason', 'Feet', { 'Kael Leather Feet Pattern' }),
+            },
+        },
+    },
+}
+
+M['Tier 12.5'] = {
+    label = 'Tier 12.5',
+    sets_by_armor_type = {
+        Plate = {
+            class_group = 'Plate',
+            set_name = 'Warmaster',
+            pieces = {
+                make_piece_def('Plate Helmet of the Warmaster', 'Head'),
+                make_piece_def('Breastplate of the Warmaster', 'Chest'),
+                make_piece_def('Plate Armguards of the Warmaster', 'Arms'),
+                make_piece_def('Legplates of the Warmaster', 'Legs'),
+                make_piece_def('Plate Handguards of the Warmaster', 'Hands'),
+                make_piece_def('Plate Wristguards of the Warmaster', 'Wrist', {
+                    'Plate Bracer of the Warmaster',
+                }),
+                make_piece_def('Plate Sabatons of the Warmaster', 'Feet'),
+            },
+        },
+        Chain = {
+            class_group = 'Chain',
+            set_name = 'Direwind Hunter',
+            pieces = {
+                make_piece_def('Chain Helmet of the Direwind Hunter', 'Head'),
+                make_piece_def('Chain Armguards of the Direwind Hunter', 'Arms'),
+                make_piece_def('Chain Handguards of the Direwind Hunter', 'Hands'),
+                make_piece_def('Chain Sabatons of the Direwind Hunter', 'Feet'),
+                make_piece_def('Chain Hauberk of the Direwind Hunter', 'Chest'),
+                make_piece_def('Chain Legguards of the Direwind Hunter', 'Legs'),
+                make_piece_def('Chain Wristguards of the Direwind Hunter', 'Wrist'),
+            },
+        },
+        Cloth = {
+            class_group = 'Cloth',
+            set_name = 'Cliffs',
+            pieces = {
+                make_piece_def('Silk Crown of the Cliffs', 'Head'),
+                make_piece_def('Silk Sleeves of the Cliffs', 'Arms'),
+                make_piece_def('Silk Gloves of the Cliffs', 'Hands'),
+                make_piece_def('Silk Wristguards of the Cliffs', 'Wrist'),
+                make_piece_def('Silk Slippers of the Cliffs', 'Feet'),
+                make_piece_def('Silk Robes of the Cliffs', 'Chest'),
+                make_piece_def('Silk Leggings of the Cliffs', 'Legs'),
+            },
+        },
+        Leather = {
+            class_group = 'Leather',
+            set_name = 'Direwind Stalker',
+            pieces = {
+                make_piece_def('Leather Hood of the Direwind Stalker', 'Head'),
+                make_piece_def('Leather Sleeves of the Direwind Stalker', 'Arms'),
+                make_piece_def('Leather Grasp of the Direwind Stalker', 'Hands'),
+                make_piece_def('Leather Boots of the Direwind Stalker', 'Feet'),
+                make_piece_def('Leather Vest of the Direwind Stalker', 'Chest'),
+                make_piece_def('Leather Leggings of the Direwind Stalker', 'Legs'),
+                make_piece_def('Leather Bindings of the Direwind Stalker', 'Wrist'),
+            },
+        },
+    },
+}
+
+M[M.default_tier_key] = {
+    label = M.default_tier_key,
+    sets_by_armor_type = {
+        Plate = {
+            class_group = 'Plate',
+            set_name = 'Blightforged Warlord',
+            pieces = {
+                make_piece_def('Plate Helmet of the Blightforged Warlord', 'Head', { 'Reforged Plate Helmet of the Blightforged Warlord' }),
+                make_piece_def('Breastplate of the Blightforged Warlord', 'Chest', { 'Reforged Breastplate of the Blightforged Warlord' }),
+                make_piece_def('Plate Armguards of the Blightforged Warlord', 'Arms', { 'Reforged Plate Armguards of the Blightforged Warlord' }),
+                make_piece_def('Legplates of the Blightforged Warlord', 'Legs', { 'Reforged Legplates of the Blightforged Warlord' }),
+                make_piece_def('Plate Handguards of the Blightforged Warlord', 'Hands', { 'Reforged Plate Handguards of the Blightforged Warlord' }),
+                make_piece_def('Plate Wristguards of the Blightforged Warlord', 'Wrist', {
+                    'Reforged Plate Wristguards of the Blightforged Warlord',
+                    'Reforged Bracer of the Blightforged Warlord',
+                }),
+                make_piece_def('Plate Sabatons of the Blightforged Warlord', 'Feet', { 'Reforged Plate Sabatons of the Blightforged Warlord' }),
+            },
+        },
+        Chain = {
+            class_group = 'Chain',
+            set_name = 'Rotfang Hunter',
+            pieces = {
+                make_piece_def('Chain Helmet of the Rotfang Hunter', 'Head', { 'Hardened Chain Helmet of the Rotfang Hunter' }),
+                make_piece_def('Chain Armguards of the Rotfang Hunter', 'Arms', { 'Hardened Chain Armguards of the Rotfang Hunter' }),
+                make_piece_def('Chain Handguards of the Rotfang Hunter', 'Hands', { 'Hardened Chain Handguards of the Rotfang Hunter' }),
+                make_piece_def('Chain Sabatons of the Rotfang Hunter', 'Feet', { 'Hardened Chain Sabatons of the Rotfang Hunter' }),
+                make_piece_def('Chain Hauberk of the Rotfang Hunter', 'Chest', { 'Hardened Chain Hauberk of the Rotfang Hunter' }),
+                make_piece_def('Chain Legguards of the Rotfang Hunter', 'Legs', { 'Hardened Chain Legguards of the Rotfang Hunter' }),
+                make_piece_def('Chain Wristguards of the Rotfang Hunter', 'Wrist', { 'Hardened Chain Wristguards of the Rotfang Hunter' }),
+            },
+        },
+        Cloth = {
+            class_group = 'Cloth',
+            set_name = 'Moorshade Magus',
+            pieces = {
+                make_piece_def('Silk Crown of the Moorshade Magus', 'Head', { 'Gusseted Silk Crown of the Moorshade Magus' }),
+                make_piece_def('Silk Sleeves of the Moorshade Magus', 'Arms', { 'Gusseted Silk Sleeves of the Moorshade Magus' }),
+                make_piece_def('Silk Gloves of the Moorshade Magus', 'Hands', { 'Gusseted Silk Gloves of the Moorshade Magus' }),
+                make_piece_def('Silk Wristguards of the Moorshade Magus', 'Wrist', { 'Gusseted Silk Wristguards of the Moorshade Magus' }),
+                make_piece_def('Silk Slippers of the Moorshade Magus', 'Feet', { 'Gusseted Silk Slippers of the Moorshade Magus' }),
+                make_piece_def('Silk Robes of the Moorshade Magus', 'Chest', { 'Gusseted Silk Robes of the Moorshade Magus' }),
+                make_piece_def('Silk Leggings of the Moorshade Magus', 'Legs', { 'Gusseted Silk Leggings of the Moorshade Magus' }),
+            },
+        },
+        Leather = {
+            class_group = 'Leather',
+            set_name = 'Blightclaw Stalker',
+            pieces = {
+                make_piece_def('Leather Hood of the Blightclaw Stalker', 'Head', { 'Reinforced Leather Hood of the Blightclaw Stalker' }),
+                make_piece_def('Leather Sleeves of the Blightclaw Stalker', 'Arms', { 'Reinforced Leather Sleeves of the Blightclaw Stalker' }),
+                make_piece_def('Leather Grasp of the Blightclaw Stalker', 'Hands', { 'Reinforced Leather Grasp of the Blightclaw Stalker' }),
+                make_piece_def('Leather Boots of the Blightclaw Stalker', 'Feet', { 'Reinforced Leather Boots of the Blightclaw Stalker' }),
+                make_piece_def('Leather Vest of the Blightclaw Stalker', 'Chest', { 'Reinforced Leather Vest of the Blightclaw Stalker' }),
+                make_piece_def('Leather Leggings of the Blightclaw Stalker', 'Legs', { 'Reinforced Leather Leggings of the Blightclaw Stalker' }),
+                make_piece_def('Leather Bindings of the Blightclaw Stalker', 'Wrist', { 'Reinforced Leather Bindings of the Blightclaw Stalker' }),
+            },
+        },
+    },
+}
+
 return M
