@@ -537,6 +537,10 @@ local function copy_pieces(pieces)
             owned = piece.owned == true,
             direct_count = piece.direct_count or 0,
             alternate_count = piece.alternate_count or 0,
+            owned_item_name = piece.owned_item_name,
+            next_upgrade_name = piece.next_upgrade_name,
+            current_rank = piece.current_rank or 0,
+            max_rank = piece.max_rank or 0,
             alternates = piece.alternates,
             component_counts = piece.component_counts,
             component_requirements = piece.component_requirements,
@@ -646,9 +650,14 @@ local function progress_changed(previous, updated)
         end
 
         if prior_piece.status_code ~= piece.status_code or
+            prior_piece.status_text ~= piece.status_text or
             prior_piece.count ~= piece.count or
             prior_piece.direct_count ~= piece.direct_count or
             prior_piece.alternate_count ~= piece.alternate_count or
+            prior_piece.owned_item_name ~= piece.owned_item_name or
+            prior_piece.next_upgrade_name ~= piece.next_upgrade_name or
+            prior_piece.current_rank ~= piece.current_rank or
+            prior_piece.max_rank ~= piece.max_rank or
             prior_piece.has_required_components ~= piece.has_required_components then
             return true
         end
@@ -786,6 +795,47 @@ local function normalize_piece_def(piece_def)
         slot = get_piece_slot(piece_def),
         alternates = {},
     }
+end
+
+local function get_next_ranked_item_name(piece_def, owned_item_name)
+    if not piece_def or not owned_item_name or owned_item_name == '' then
+        return nil
+    end
+
+    local ranked_names = { piece_def.name }
+    for _, alternate_name in ipairs(piece_def.alternates or {}) do
+        table.insert(ranked_names, alternate_name)
+    end
+
+    for index, item_name in ipairs(ranked_names) do
+        if item_name == owned_item_name then
+            if index > 1 then
+                return ranked_names[index - 1]
+            end
+            return nil
+        end
+    end
+
+    return nil
+end
+
+local function get_ranked_item_position(piece_def, owned_item_name)
+    local max_rank = 1 + #(piece_def and piece_def.alternates or {})
+    if not owned_item_name or owned_item_name == '' then
+        return 0, max_rank
+    end
+
+    if piece_def and piece_def.name == owned_item_name then
+        return max_rank, max_rank
+    end
+
+    for index, alternate_name in ipairs(piece_def and piece_def.alternates or {}) do
+        if alternate_name == owned_item_name then
+            return max_rank - index, max_rank
+        end
+    end
+
+    return 0, max_rank
 end
 
 local function get_armor_type_by_class(class_name)
@@ -985,6 +1035,11 @@ local function build_local_progress(tier_key, tier_10_faction_key)
         local has_required_components = false
         local status_code = owned and 'armor' or (has_alternate and 'pattern' or 'missing')
         local status_text = owned and 'Done' or (has_alternate and 'Have Pattern' or 'Missing')
+        local next_upgrade_name = piece_def.slot == 'Augment' and get_next_ranked_item_name(piece_def, owned_item_name) or nil
+        local current_rank, max_rank = 0, 0
+        if piece_def.slot == 'Augment' then
+            current_rank, max_rank = get_ranked_item_position(piece_def, owned_item_name)
+        end
 
         if has_tier_component_config and piece_def.slot and tier_component_config.component_requirements[piece_def.slot] then
             component_requirements = tier_component_config.component_requirements[piece_def.slot]
@@ -1016,6 +1071,17 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             status_code = 'armor'
             status_text = 'Done'
         end
+
+        if piece_def.slot == 'Augment' then
+            if owned_item_name and next_upgrade_name then
+                status_text = string.format('Next: %s', next_upgrade_name)
+            elseif owned_item_name then
+                status_text = 'Max Rank'
+            else
+                status_text = string.format('Need: %s', piece_def.alternates[#piece_def.alternates] or piece_def.name)
+            end
+        end
+
         if status_code == 'armor' then
             progress.completed = progress.completed + 1
         end
@@ -1026,6 +1092,9 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             direct_count = direct_count,
             alternate_count = alternate_count,
             owned_item_name = owned_item_name,
+            next_upgrade_name = next_upgrade_name,
+            current_rank = current_rank,
+            max_rank = max_rank,
             alternates = piece_def.alternates,
             component_counts = component_counts,
             component_requirements = component_requirements,
@@ -1212,9 +1281,20 @@ local function render_piece_row(piece)
     elseif piece.status_code == 'components' then
         ImGui.SameLine()
         colored_text(COLOR_COMPONENTS, '[Components]')
+    elseif piece.slot == 'Augment' and piece.status_code == 'armor' then
+        ImGui.SameLine()
+        if piece.next_upgrade_name then
+            colored_text(COLOR_WARN, '[Upgrade]')
+        else
+            colored_text(COLOR_COMPLETE, '[Max Rank]')
+        end
     end
     if ImGui.IsItemHovered() then
         local lines = { string.format('Armor: %d', piece.direct_count or 0) }
+        if piece.slot == 'Augment' then
+            table.insert(lines, string.format('Current: %s', piece.owned_item_name or 'None'))
+            table.insert(lines, string.format('Next: %s', piece.next_upgrade_name or 'None'))
+        end
         if piece.alternates and #piece.alternates > 0 then
             table.insert(lines, string.format('Alternates: %d', piece.alternate_count or 0))
             for _, alternate_name in ipairs(piece.alternates) do
@@ -1352,7 +1432,7 @@ render_cold_bargain_block = function(progress)
         string.format('Mount Dhoom: %s', cold_bargain.reward_owned and 'Owned' or 'Not Owned'))
 end
 
-local SLOT_TAB_ORDER = { 'Head', 'Chest', 'Arms', 'Legs', 'Hands', 'Wrist', 'Feet' }
+local SLOT_TAB_ORDER = { 'Head', 'Chest', 'Arms', 'Legs', 'Hands', 'Wrist', 'Feet', 'Augment' }
 
 local function find_piece_for_slot(progress, slot_name)
     if not progress or not progress.supported then
@@ -1726,6 +1806,7 @@ local function render_peer_summary_table()
     local show_faction = selected_tier == 'Tier 10'
     local show_plagueborn = show_faction
     local show_cold_bargain = selected_tier == 'Tier 11' and state.track_mount_dhoom == true
+    local show_halloween_hos = selected_tier == 'Halloween - HoS'
     local column_count = show_components and (show_faction and 12 or 10) or (show_faction and 6 or 4)
 
     if ImGui.BeginTable('EZProgressPeers##' .. selected_tier, column_count, bit32.bor(
@@ -1761,6 +1842,16 @@ local function render_peer_summary_table()
 
         local function render_progress_tooltip(progress)
             if not progress or not progress.supported then
+                return
+            end
+
+            if show_halloween_hos then
+                local augment_piece = find_piece_for_slot(progress, 'Augment')
+                if augment_piece then
+                    ImGui.SetTooltip(string.format('Current: %s\nNext: %s',
+                        augment_piece.owned_item_name or 'None',
+                        augment_piece.next_upgrade_name or 'None'))
+                end
                 return
             end
 
@@ -1804,6 +1895,7 @@ local function render_peer_summary_table()
 
         local function add_row(progress, is_self)
             local deficits = show_components and get_tier_11_component_deficits(progress) or nil
+            local augment_piece = show_halloween_hos and find_piece_for_slot(progress, 'Augment') or nil
             ImGui.TableNextRow()
 
             ImGui.TableNextColumn()
@@ -1839,8 +1931,17 @@ local function render_peer_summary_table()
 
             ImGui.TableNextColumn()
             if progress.supported then
-                local complete = (progress.completed or 0) >= (progress.total or 0) and (progress.total or 0) > 0
-                colored_text(complete and COLOR_COMPLETE or COLOR_INCOMPLETE, string.format('%d/%d', progress.completed or 0, progress.total or 0))
+                if show_halloween_hos then
+                    local current_augment = augment_piece and augment_piece.owned_item_name or nil
+                    local next_augment = augment_piece and augment_piece.next_upgrade_name or nil
+                    local current_rank = augment_piece and augment_piece.current_rank or 0
+                    local max_rank = augment_piece and augment_piece.max_rank or 6
+                    local color = current_rank <= 0 and COLOR_INCOMPLETE or (next_augment and COLOR_WARN or COLOR_COMPLETE)
+                    colored_text(color, string.format('%d/%d', current_rank, max_rank))
+                else
+                    local complete = (progress.completed or 0) >= (progress.total or 0) and (progress.total or 0) > 0
+                    colored_text(complete and COLOR_COMPLETE or COLOR_INCOMPLETE, string.format('%d/%d', progress.completed or 0, progress.total or 0))
+                end
                 if ImGui.IsItemHovered() then
                     render_progress_tooltip(progress)
                 end
@@ -1949,7 +2050,7 @@ local function render_slot_summary_table(slot_name)
             ImGui.TableNextColumn()
             local piece = find_piece_for_slot(progress, slot_name)
             if piece then
-                ImGui.Text(piece.name or '')
+                ImGui.Text(piece.owned_item_name or piece.name or '')
             elseif progress.supported then
                 colored_text(COLOR_MUTED, 'No tracked piece')
             else
@@ -1961,10 +2062,14 @@ local function render_slot_summary_table(slot_name)
                 colored_text(get_piece_status_color(piece), piece.status_text or (piece.owned and 'Owned' or 'Missing'))
                 if ImGui.IsItemHovered() then
                     local lines = {
-                        string.format('%s', piece.name or 'Unknown'),
+                        string.format('%s', piece.owned_item_name or piece.name or 'Unknown'),
                         string.format('Armor: %d', piece.direct_count or 0),
                         string.format('Alternates: %d', piece.alternate_count or 0),
                     }
+                    if piece.slot == 'Augment' then
+                        table.insert(lines, string.format('Current: %s', piece.owned_item_name or 'None'))
+                        table.insert(lines, string.format('Next: %s', piece.next_upgrade_name or 'None'))
+                    end
                     if piece.component_counts and piece.component_requirements then
                         append_component_tooltip_lines(lines, piece)
                     end

@@ -6,6 +6,35 @@ local function make_piece_def(name, slot_name, alternates)
     }
 end
 
+local function make_halloween_hos_set(armor_type)
+    return {
+        class_group = armor_type,
+        set_name = "Foxy's Augment",
+        pieces = {
+            make_piece_def("Foxy's Ultimate Augment", 'Augment', {
+                "Foxy's Superior Augment",
+                "Foxy's Platinum Augment",
+                "Foxy's Gold Augment",
+                "Foxy's Silver Augment",
+                "Foxy's Rusted Augment",
+            }),
+        },
+    }
+end
+
+local function make_halloween_thule_dream_set(armor_type)
+    return {
+        class_group = armor_type,
+        set_name = 'Thule Dream Familiar',
+        pieces = {
+            make_piece_def('Furious Sentinel Familiar', 'Familiar', {
+                "Thule's Nightmare Familiar",
+                'Deranged Goblin Familiar',
+            }),
+        },
+    }
+end
+
 local M = {}
 
 M['Tier 1'] = {
@@ -1950,6 +1979,8 @@ M.tier_order = {
     'Tier 11',
     M.default_tier_key,
     'Tier 12.5',
+    'Halloween - HoS',
+    'Halloween - Thule Dream',
 }
 
 M.faction_targets = {
@@ -2378,6 +2409,26 @@ M['Tier 12.5'] = {
                 make_piece_def('Leather Bindings of the Direwind Stalker', 'Wrist'),
             },
         },
+    },
+}
+
+M['Halloween - HoS'] = {
+    label = 'Halloween - HoS',
+    sets_by_armor_type = {
+        Plate = make_halloween_hos_set('Plate'),
+        Chain = make_halloween_hos_set('Chain'),
+        Leather = make_halloween_hos_set('Leather'),
+        Cloth = make_halloween_hos_set('Cloth'),
+    },
+}
+
+M['Halloween - Thule Dream'] = {
+    label = 'Halloween - Thule Dream',
+    sets_by_armor_type = {
+        Plate = make_halloween_thule_dream_set('Plate'),
+        Chain = make_halloween_thule_dream_set('Chain'),
+        Leather = make_halloween_thule_dream_set('Leather'),
+        Cloth = make_halloween_thule_dream_set('Cloth'),
     },
 }
 

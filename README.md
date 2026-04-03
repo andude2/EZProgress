@@ -23,8 +23,12 @@ Armor type follows the same class mapping used in `EZInventory`:
 
 Tracked sets:
 
-Tiers 10, 11 and 12 are tested.
+Tiers 10, 11, 12, 12.5, Halloween - HoS, and Halloween - Thule Dream are tested.
 
 Tiers 1 - 9 have data, but have not been tested yet.
 
 Each tracked set currently checks all seven armor pieces and counts ownership from inventory plus bank.
+
+Halloween - HoS tracks one Augment slot and displays the highest owned Foxy's augment rank, from Rusted through Ultimate.
+
+Halloween - Thule Dream tracks one Familiar slot and counts completion if you own any one of Furious Sentinel Familiar, Thule's Nightmare Familiar, or Deranged Goblin Familiar.
