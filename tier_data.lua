@@ -35,6 +35,16 @@ local function make_halloween_thule_dream_set(armor_type)
     }
 end
 
+local function make_roxy_augment_piece()
+    return make_piece_def("Roxy's Pristine Augment", 'Augment', {
+        "Roxy's Dazzling Augment",
+        "Roxy's Sparkling Augment",
+        "Roxy's Radiant Augment",
+        "Roxy's Glimmering Augment",
+        "Roxy's Tarnished Augment",
+    })
+end
+
 local M = {}
 
 M['Tier 1'] = {
@@ -2308,6 +2318,7 @@ M['Tier 11'] = {
                 make_piece_def('Legplates of King Tormax', 'Legs', { 'Kael Plate Legs Pattern' }),
                 make_piece_def('Plate Handguards of King Tormax', 'Hands', { 'Kael Plate Hands Pattern' }),
                 make_piece_def('Plate Sabatons of King Tormax', 'Feet', { 'Kael Plate Feet Pattern' }),
+                make_roxy_augment_piece(),
             },
         },
         Chain = {
@@ -2321,6 +2332,7 @@ M['Tier 11'] = {
                 make_piece_def('Chain Legguards of Fjordavind the Fearless', 'Legs', { 'Kael Chain Legs Pattern' }),
                 make_piece_def('Chain Handguards of Fjordavind the Fearless', 'Hands', { 'Kael Chain Hands Pattern' }),
                 make_piece_def('Chain Sabatons of Fjordavind the Fearless', 'Feet', { 'Kael Chain Feet Pattern' }),
+                make_roxy_augment_piece(),
             },
         },
         Cloth = {
@@ -2334,6 +2346,7 @@ M['Tier 11'] = {
                 make_piece_def('Silk Leggings of Velketor the Sorcerer', 'Legs', { 'Kael Silk Legs Pattern' }),
                 make_piece_def('Silk Gloves of Velketor the Sorcerer', 'Hands', { 'Kael Silk Hands Pattern' }),
                 make_piece_def('Silk Slippers of Velketor the Sorcerer', 'Feet', { 'Kael Silk Feet Pattern' }),
+                make_roxy_augment_piece(),
             },
         },
         Leather = {
@@ -2347,6 +2360,7 @@ M['Tier 11'] = {
                 make_piece_def('Leather Leggings of Ragnar Fjordason', 'Legs', { 'Kael Leather Legs Pattern' }),
                 make_piece_def('Leather Grasps of Ragnar Fjordason', 'Hands', { 'Kael Leather Hands Pattern' }),
                 make_piece_def('Leather Boots of Ragnar Fjordason', 'Feet', { 'Kael Leather Feet Pattern' }),
+                make_roxy_augment_piece(),
             },
         },
     },

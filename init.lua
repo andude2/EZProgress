@@ -838,6 +838,10 @@ local function get_ranked_item_position(piece_def, owned_item_name)
     return 0, max_rank
 end
 
+local function is_required_progress_slot(slot_name)
+    return slot_name ~= 'Augment'
+end
+
 local function get_armor_type_by_class(class_name)
     if not class_name or class_name == '' then
         return 'Unknown'
@@ -1004,7 +1008,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
         set_name = set_config.set_name,
         supported = true,
         completed = 0,
-        total = #set_config.pieces,
+        total = 0,
         missing_count = 0,
         pieces = {},
     }
@@ -1082,8 +1086,11 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             end
         end
 
-        if status_code == 'armor' then
-            progress.completed = progress.completed + 1
+        if is_required_progress_slot(piece_def.slot) then
+            progress.total = progress.total + 1
+            if status_code == 'armor' then
+                progress.completed = progress.completed + 1
+            end
         end
         table.insert(progress.pieces, {
             name = piece_def.name,
@@ -1448,6 +1455,24 @@ local function find_piece_for_slot(progress, slot_name)
     return nil
 end
 
+local function has_tracked_slot(slot_name)
+    if not slot_name or slot_name == '' then
+        return false
+    end
+
+    if find_piece_for_slot(state.local_progress, slot_name) then
+        return true
+    end
+
+    for _, peer_name in ipairs(state.peer_order) do
+        if find_piece_for_slot(state.peer_progress[peer_name], slot_name) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function get_tier_11_component_deficits(progress)
     local deficits = {
         major = 0,
@@ -1609,6 +1634,23 @@ local function compare_slot_status(left, right, slot_name, ascending)
     return compare_sort_values(status_value(left), status_value(right), ascending)
 end
 
+local function compare_augment_rank(left, right, ascending)
+    local function augment_value(progress)
+        if not progress or not progress.supported then
+            return nil
+        end
+
+        local piece = find_piece_for_slot(progress, 'Augment')
+        if not piece then
+            return nil
+        end
+
+        return string.format('%03d:%03d', piece.current_rank or 0, piece.max_rank or 0)
+    end
+
+    return compare_sort_values(augment_value(left), augment_value(right), ascending)
+end
+
 local function compare_rows(left_row, right_row, compare_fn)
     local result = compare_fn(left_row.progress, right_row.progress)
     if result ~= 0 then
@@ -1620,9 +1662,12 @@ end
 
 local function get_sorted_progress_rows(mode, sort_specs, slot_name)
     local rows = {}
-    local show_faction = (state.selected_tier or DEFAULT_TIER_KEY) == 'Tier 10'
+    local selected_tier = state.selected_tier or DEFAULT_TIER_KEY
+    local show_components = selected_tier == 'Tier 11'
+    local show_faction = selected_tier == 'Tier 10'
     local show_plagueborn = show_faction
-    local show_cold_bargain = (state.selected_tier or DEFAULT_TIER_KEY) == 'Tier 11' and state.track_mount_dhoom == true
+    local show_augment = selected_tier == 'Tier 11' and has_tracked_slot('Augment')
+    local show_cold_bargain = selected_tier == 'Tier 11' and state.track_mount_dhoom == true
 
     if state.local_progress then
         table.insert(rows, { progress = state.local_progress, is_self = true })
@@ -1646,6 +1691,15 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
 
     local function compare_fn(left, right)
         if mode == 'peer_summary' then
+            local progress_column = show_faction and 5 or 3
+            local augment_column = show_augment and (progress_column + 1) or nil
+            local major_column = progress_column + (show_augment and 2 or 1)
+            local minor_column = major_column + 1
+            local water_column = major_column + 2
+            local frostbloom_column = major_column + 3
+            local pelt_column = major_column + 4
+            local gem_column = major_column + 5
+
             if column_index == 1 then
                 return compare_sort_values(left.class or '', right.class or '', ascending)
             end
@@ -1658,25 +1712,28 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
             if show_plagueborn and column_index == 4 then
                 return compare_sort_values(left.plagueborn_kills or nil, right.plagueborn_kills or nil, ascending)
             end
-            if column_index == (show_faction and 5 or 3) then
+            if column_index == progress_column then
                 return compare_progress_completion(left, right, ascending)
             end
-            if column_index == (show_faction and 7 or 4) then
+            if augment_column and column_index == augment_column then
+                return compare_augment_rank(left, right, ascending)
+            end
+            if show_components and column_index == major_column then
                 return compare_tier_11_deficits(left, right, 'major', ascending)
             end
-            if column_index == (show_faction and 8 or 5) then
+            if show_components and column_index == minor_column then
                 return compare_tier_11_deficits(left, right, 'minor', ascending)
             end
-            if column_index == (show_faction and 9 or 6) then
+            if show_components and column_index == water_column then
                 return compare_tier_11_deficits(left, right, 'water', ascending)
             end
-            if show_cold_bargain and column_index == (show_faction and 10 or 7) then
+            if show_cold_bargain and column_index == frostbloom_column then
                 return compare_cold_bargain_item(left, right, 'frostbloom', ascending)
             end
-            if show_cold_bargain and column_index == (show_faction and 11 or 8) then
+            if show_cold_bargain and column_index == pelt_column then
                 return compare_cold_bargain_item(left, right, 'pelt', ascending)
             end
-            if show_cold_bargain and column_index == (show_faction and 12 or 9) then
+            if show_cold_bargain and column_index == gem_column then
                 return compare_cold_bargain_item(left, right, 'gem', ascending)
             end
             return compare_sort_values(left.character or '', right.character or '', ascending)
@@ -1805,9 +1862,13 @@ local function render_peer_summary_table()
     local show_components = selected_tier == 'Tier 11'
     local show_faction = selected_tier == 'Tier 10'
     local show_plagueborn = show_faction
+    local show_augment = selected_tier == 'Tier 11' and has_tracked_slot('Augment')
     local show_cold_bargain = selected_tier == 'Tier 11' and state.track_mount_dhoom == true
-    local show_halloween_hos = selected_tier == 'Halloween - HoS'
+    local show_halloween_hos = selected_tier == 'Halloween - HoS' and has_tracked_slot('Augment')
     local column_count = show_components and (show_faction and 12 or 10) or (show_faction and 6 or 4)
+    if show_augment then
+        column_count = column_count + 1
+    end
 
     if ImGui.BeginTable('EZProgressPeers##' .. selected_tier, column_count, bit32.bor(
         ImGuiTableFlags.RowBg,
@@ -1826,6 +1887,9 @@ local function render_peer_summary_table()
             ImGui.TableSetupColumn('Plagueborn')
         end
         ImGui.TableSetupColumn('Progress')
+        if show_augment then
+            ImGui.TableSetupColumn('Augment')
+        end
         if show_components then
             ImGui.TableSetupColumn('Majors')
             ImGui.TableSetupColumn('Minors')
@@ -1840,6 +1904,16 @@ local function render_peer_summary_table()
 
         local rows = get_sorted_progress_rows('peer_summary', ImGui.TableGetSortSpecs())
 
+        local function render_augment_tooltip(augment_piece)
+            if not augment_piece then
+                return
+            end
+
+            ImGui.SetTooltip(string.format('Current: %s\nNext: %s',
+                augment_piece.owned_item_name or 'None',
+                augment_piece.next_upgrade_name or 'None'))
+        end
+
         local function render_progress_tooltip(progress)
             if not progress or not progress.supported then
                 return
@@ -1848,16 +1922,15 @@ local function render_peer_summary_table()
             if show_halloween_hos then
                 local augment_piece = find_piece_for_slot(progress, 'Augment')
                 if augment_piece then
-                    ImGui.SetTooltip(string.format('Current: %s\nNext: %s',
-                        augment_piece.owned_item_name or 'None',
-                        augment_piece.next_upgrade_name or 'None'))
+                    render_augment_tooltip(augment_piece)
                 end
                 return
             end
 
             local missing_pieces = {}
             for _, piece in ipairs(progress.pieces or {}) do
-                if (piece.status_code or (piece.owned and 'armor' or 'missing')) ~= 'armor' then
+                if is_required_progress_slot(piece.slot)
+                    and (piece.status_code or (piece.owned and 'armor' or 'missing')) ~= 'armor' then
                     table.insert(missing_pieces, piece.name)
                 end
             end
@@ -1895,7 +1968,7 @@ local function render_peer_summary_table()
 
         local function add_row(progress, is_self)
             local deficits = show_components and get_tier_11_component_deficits(progress) or nil
-            local augment_piece = show_halloween_hos and find_piece_for_slot(progress, 'Augment') or nil
+            local augment_piece = (show_halloween_hos or show_augment) and find_piece_for_slot(progress, 'Augment') or nil
             ImGui.TableNextRow()
 
             ImGui.TableNextColumn()
@@ -1932,7 +2005,6 @@ local function render_peer_summary_table()
             ImGui.TableNextColumn()
             if progress.supported then
                 if show_halloween_hos then
-                    local current_augment = augment_piece and augment_piece.owned_item_name or nil
                     local next_augment = augment_piece and augment_piece.next_upgrade_name or nil
                     local current_rank = augment_piece and augment_piece.current_rank or 0
                     local max_rank = augment_piece and augment_piece.max_rank or 6
@@ -1947,6 +2019,22 @@ local function render_peer_summary_table()
                 end
             else
                 colored_text(COLOR_MUTED, '--')
+            end
+
+            if show_augment then
+                ImGui.TableNextColumn()
+                if augment_piece then
+                    local next_augment = augment_piece.next_upgrade_name
+                    local current_rank = augment_piece.current_rank or 0
+                    local max_rank = augment_piece.max_rank or 6
+                    local color = current_rank <= 0 and COLOR_INCOMPLETE or (next_augment and COLOR_WARN or COLOR_COMPLETE)
+                    colored_text(color, string.format('%d/%d', current_rank, max_rank))
+                    if ImGui.IsItemHovered() then
+                        render_augment_tooltip(augment_piece)
+                    end
+                else
+                    colored_text(COLOR_MUTED, '--')
+                end
             end
 
             if show_components then
@@ -2302,13 +2390,15 @@ local function display_gui()
             end
 
             for _, slot_name in ipairs(SLOT_TAB_ORDER) do
-                local pushed = push_slot_tab_colors(get_slot_completion_state(slot_name))
-                if ImGui.BeginTabItem(slot_name) then
-                    render_slot_summary_table(slot_name)
-                    ImGui.EndTabItem()
-                end
-                if pushed > 0 then
-                    ImGui.PopStyleColor(pushed)
+                if slot_name ~= 'Augment' or has_tracked_slot(slot_name) then
+                    local pushed = push_slot_tab_colors(get_slot_completion_state(slot_name))
+                    if ImGui.BeginTabItem(slot_name) then
+                        render_slot_summary_table(slot_name)
+                        ImGui.EndTabItem()
+                    end
+                    if pushed > 0 then
+                        ImGui.PopStyleColor(pushed)
+                    end
                 end
             end
 
