@@ -47,6 +47,22 @@ local TIER_11_COLD_BARGAIN = TIER_11_CONFIG.cold_bargain or {}
 local TIER_11_COLD_BARGAIN_ITEMS = TIER_11_COLD_BARGAIN.items or {}
 local TIER_11_COLD_BARGAIN_REQUIRED = TIER_11_COLD_BARGAIN.required or 3
 local TIER_11_COLD_BARGAIN_REWARD = TIER_11_COLD_BARGAIN.reward or 'Mount Dhoom'
+local TIER_11_AOW_CYCLE_ITEMS = {
+    fjordavind = "Fjordavind's Head",
+    king_tormax = "King Tormax's Head",
+    ragnar = "Ragnar's Head",
+    velketor = "Velketor's Head",
+}
+local TIER_11_AOW_CYCLE_ORDER = { 'fjordavind', 'king_tormax', 'ragnar', 'velketor' }
+local STATUS_ICON_SIZE = ImVec2(24, 24)
+local STATUS_ICON_PATHS = {
+    complete = 'EZProgress/assets/green check v2.png',
+    missing = 'EZProgress/assets/red x v2.png',
+}
+local status_icons = {
+    complete = nil,
+    missing = nil,
+}
 
 _G.ezprogress_state = _G.ezprogress_state or {
     actor_handle = nil,
@@ -55,14 +71,10 @@ _G.ezprogress_state = _G.ezprogress_state or {
     peer_order = {},
     selected_tier = DEFAULT_TIER_KEY,
     selected_tier_10_faction = DEFAULT_TIER_10_FACTION,
-    track_mount_dhoom = true,
 }
 local state = _G.ezprogress_state
 state.selected_tier = state.selected_tier or DEFAULT_TIER_KEY
 state.selected_tier_10_faction = state.selected_tier_10_faction or DEFAULT_TIER_10_FACTION
-if state.track_mount_dhoom == nil then
-    state.track_mount_dhoom = true
-end
 
 _G.ezprogress_triggers = _G.ezprogress_triggers or {
     do_refresh = false,
@@ -113,6 +125,41 @@ end
 
 local function colored_text(color, text)
     ImGui.TextColored(color[1], color[2], color[3], color[4], text)
+end
+
+local function load_status_icon(icon_key)
+    if status_icons[icon_key] ~= nil then
+        return status_icons[icon_key]
+    end
+
+    local relative_path = STATUS_ICON_PATHS[icon_key]
+    if not relative_path then
+        return nil
+    end
+
+    local lua_dir = mq.TLO.Lua.Dir()
+    if not lua_dir or lua_dir == '' then
+        return nil
+    end
+
+    status_icons[icon_key] = mq.CreateTexture(string.format('%s/%s', lua_dir, relative_path))
+    return status_icons[icon_key]
+end
+
+local function render_status_icon(is_complete, tooltip)
+    local icon = load_status_icon(is_complete and 'complete' or 'missing')
+    if icon then
+        ImGui.Image(icon:GetTextureID(), STATUS_ICON_SIZE)
+        if tooltip and tooltip ~= '' and ImGui.IsItemHovered() then
+            ImGui.SetTooltip(tooltip)
+        end
+        return
+    end
+
+    colored_text(is_complete and COLOR_COMPLETE or COLOR_INCOMPLETE, is_complete and 'Yes' or 'No')
+    if tooltip and tooltip ~= '' and ImGui.IsItemHovered() then
+        ImGui.SetTooltip(tooltip)
+    end
 end
 
 local function push_soft_theme()
@@ -570,6 +617,24 @@ local function copy_cold_bargain_progress(progress)
     }
 end
 
+local function copy_aow_cycle_progress(progress)
+    if not progress then
+        return nil
+    end
+
+    return {
+        collected = progress.collected or 0,
+        total = progress.total or 0,
+        completed = progress.completed == true,
+        item_counts = {
+            fjordavind = progress.item_counts and progress.item_counts.fjordavind or 0,
+            king_tormax = progress.item_counts and progress.item_counts.king_tormax or 0,
+            ragnar = progress.item_counts and progress.item_counts.ragnar or 0,
+            velketor = progress.item_counts and progress.item_counts.velketor or 0,
+        },
+    }
+end
+
 local function get_tier_config(tier_key)
     local key = tier_key or state.selected_tier or DEFAULT_TIER_KEY
     return TIER_CONFIGS[key]
@@ -599,6 +664,7 @@ local function clone_progress(progress)
         tier_10_faction_rank = progress.tier_10_faction_rank,
         plagueborn_kills = progress.plagueborn_kills,
         cold_bargain = copy_cold_bargain_progress(progress.cold_bargain),
+        aow_cycle = copy_aow_cycle_progress(progress.aow_cycle),
         set_name = progress.set_name,
         supported = progress.supported == true,
         completed = progress.completed or 0,
@@ -633,6 +699,20 @@ local function progress_changed(previous, updated)
             or previous_cold_bargain.completed ~= updated_cold_bargain.completed
             or previous_cold_bargain.reward_owned ~= updated_cold_bargain.reward_owned
             or not component_maps_equal(previous_cold_bargain.item_counts, updated_cold_bargain.item_counts) then
+            return true
+        end
+    end
+
+    local previous_aow_cycle = previous.aow_cycle
+    local updated_aow_cycle = updated.aow_cycle
+    if (previous_aow_cycle and not updated_aow_cycle) or (updated_aow_cycle and not previous_aow_cycle) then
+        return true
+    end
+    if previous_aow_cycle and updated_aow_cycle then
+        if previous_aow_cycle.collected ~= updated_aow_cycle.collected
+            or previous_aow_cycle.total ~= updated_aow_cycle.total
+            or previous_aow_cycle.completed ~= updated_aow_cycle.completed
+            or not component_maps_equal(previous_aow_cycle.item_counts, updated_aow_cycle.item_counts) then
             return true
         end
     end
@@ -703,6 +783,23 @@ local function build_cold_bargain_progress()
         total = total,
         completed = collected >= total,
         reward_owned = count_item_owned(TIER_11_COLD_BARGAIN_REWARD) > 0,
+        item_counts = item_counts,
+    }
+end
+
+local function build_aow_cycle_progress()
+    local item_counts = get_component_counts(TIER_11_AOW_CYCLE_ITEMS)
+    local collected = 0
+    for _, key in ipairs(TIER_11_AOW_CYCLE_ORDER) do
+        if (item_counts[key] or 0) > 0 then
+            collected = collected + 1
+        end
+    end
+
+    return {
+        collected = collected,
+        total = #TIER_11_AOW_CYCLE_ORDER,
+        completed = collected >= #TIER_11_AOW_CYCLE_ORDER,
         item_counts = item_counts,
     }
 end
@@ -987,6 +1084,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
             tier_10_faction_rank = cached_tier_10_faction and cached_tier_10_faction.rank or nil,
             plagueborn_kills = selected_tier == 'Tier 10' and quest_state.plagueborn_kills or nil,
             cold_bargain = selected_tier == 'Tier 11' and build_cold_bargain_progress() or nil,
+            aow_cycle = selected_tier == 'Tier 11' and build_aow_cycle_progress() or nil,
             set_name = '',
             supported = false,
             completed = 0,
@@ -1005,6 +1103,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
         tier_10_faction_rank = cached_tier_10_faction and cached_tier_10_faction.rank or nil,
         plagueborn_kills = selected_tier == 'Tier 10' and quest_state.plagueborn_kills or nil,
         cold_bargain = selected_tier == 'Tier 11' and build_cold_bargain_progress() or nil,
+        aow_cycle = selected_tier == 'Tier 11' and build_aow_cycle_progress() or nil,
         set_name = set_config.set_name,
         supported = true,
         completed = 0,
@@ -1229,6 +1328,8 @@ local function handle_message(message)
             tier_10_faction = content.progress and content.progress.tier_10_faction or nil,
             tier_10_faction_rank = content.progress and content.progress.tier_10_faction_rank or nil,
             plagueborn_kills = content.progress and content.progress.plagueborn_kills or nil,
+            cold_bargain = content.progress and copy_cold_bargain_progress(content.progress.cold_bargain) or nil,
+            aow_cycle = content.progress and copy_aow_cycle_progress(content.progress.aow_cycle) or nil,
             supported = false,
             completed = 0,
             total = 0,
@@ -1315,8 +1416,6 @@ local function render_piece_row(piece)
     end
 end
 
-local render_cold_bargain_block
-
 local function render_progress_block(progress, is_self)
     if not progress then
         colored_text(COLOR_MUTED, 'No data available.')
@@ -1337,7 +1436,6 @@ local function render_progress_block(progress, is_self)
             return
         end
         colored_text(COLOR_WARN, 'No tracked armor set configured for this class yet.')
-        render_cold_bargain_block(progress)
         return
     end
 
@@ -1353,7 +1451,6 @@ local function render_progress_block(progress, is_self)
     for _, piece in ipairs(progress.pieces or {}) do
         render_piece_row(piece)
     end
-    render_cold_bargain_block(progress)
 end
 
 local function render_faction_status()
@@ -1415,13 +1512,13 @@ local function render_tier_11_legend()
     colored_text(COLOR_INCOMPLETE, 'Red = Missing Both')
 end
 
-render_cold_bargain_block = function(progress)
+local function render_mount_dhoom_summary(progress)
     if not progress or progress.tier_key ~= 'Tier 11' or not progress.cold_bargain then
+        colored_text(COLOR_MUTED, 'No Mount Dhoom progress available.')
         return
     end
 
     local cold_bargain = progress.cold_bargain
-    ImGui.Separator()
     colored_text(COLOR_HEADER, 'A Cold Bargain')
     ImGui.SameLine()
     colored_text(COLOR_MUTED, string.format('[Reward: %s]', TIER_11_COLD_BARGAIN_REWARD))
@@ -1435,8 +1532,31 @@ render_cold_bargain_block = function(progress)
         colored_text(color, string.format('%s: %d/%d', TIER_11_COLD_BARGAIN_ITEMS[key], count, TIER_11_COLD_BARGAIN_REQUIRED))
     end
 
-    colored_text(cold_bargain.reward_owned and COLOR_COMPLETE or COLOR_MUTED,
+    ImGui.Text('Mount Dhoom:')
+    ImGui.SameLine()
+    render_status_icon(cold_bargain.reward_owned == true,
         string.format('Mount Dhoom: %s', cold_bargain.reward_owned and 'Owned' or 'Not Owned'))
+end
+
+local function render_aow_cycle_summary(progress)
+    if not progress or progress.tier_key ~= 'Tier 11' or not progress.aow_cycle then
+        colored_text(COLOR_MUTED, 'No AoW Cycle progress available.')
+        return
+    end
+
+    local aow_cycle = progress.aow_cycle
+    colored_text(COLOR_HEADER, 'AoW Cycle')
+    colored_text(aow_cycle.completed and COLOR_COMPLETE or COLOR_WARN,
+        string.format('Progress: %d/%d', aow_cycle.collected or 0, aow_cycle.total or #TIER_11_AOW_CYCLE_ORDER))
+
+    for _, key in ipairs(TIER_11_AOW_CYCLE_ORDER) do
+        local count = aow_cycle.item_counts and aow_cycle.item_counts[key] or 0
+        local label = TIER_11_AOW_CYCLE_ITEMS[key] or key
+        ImGui.Text(string.format('%s:', label))
+        ImGui.SameLine()
+        render_status_icon(count > 0, string.format('%s: %s', label, count > 0 and string.format('Owned (%d)', count) or 'Missing'))
+        ImGui.SameLine()
+    end
 end
 
 local SLOT_TAB_ORDER = { 'Head', 'Chest', 'Arms', 'Legs', 'Hands', 'Wrist', 'Feet', 'Augment' }
@@ -1604,6 +1724,33 @@ local function compare_cold_bargain_reward(left, right, ascending)
     return compare_sort_values(left_value, right_value, ascending)
 end
 
+local function compare_aow_cycle_item(left, right, item_key, ascending)
+    local left_value = 0
+    local right_value = 0
+
+    if left and left.tier_key == 'Tier 11' and left.aow_cycle and left.aow_cycle.item_counts then
+        left_value = left.aow_cycle.item_counts[item_key] or 0
+    end
+    if right and right.tier_key == 'Tier 11' and right.aow_cycle and right.aow_cycle.item_counts then
+        right_value = right.aow_cycle.item_counts[item_key] or 0
+    end
+
+    return compare_sort_values(left_value, right_value, ascending)
+end
+
+local function compare_aow_cycle_progress(left, right, ascending)
+    local function cycle_value(progress)
+        if not progress or progress.tier_key ~= 'Tier 11' or not progress.aow_cycle then
+            return nil
+        end
+
+        local aow_cycle = progress.aow_cycle
+        return string.format('%03d:%03d', aow_cycle.collected or 0, aow_cycle.total or #TIER_11_AOW_CYCLE_ORDER)
+    end
+
+    return compare_sort_values(cycle_value(left), cycle_value(right), ascending)
+end
+
 local function compare_progress_completion(left, right, ascending)
     local function completion_value(progress)
         if not progress or not progress.supported then
@@ -1667,7 +1814,6 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
     local show_faction = selected_tier == 'Tier 10'
     local show_plagueborn = show_faction
     local show_augment = selected_tier == 'Tier 11' and has_tracked_slot('Augment')
-    local show_cold_bargain = selected_tier == 'Tier 11' and state.track_mount_dhoom == true
 
     if state.local_progress then
         table.insert(rows, { progress = state.local_progress, is_self = true })
@@ -1696,9 +1842,6 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
             local major_column = progress_column + (show_augment and 2 or 1)
             local minor_column = major_column + 1
             local water_column = major_column + 2
-            local frostbloom_column = major_column + 3
-            local pelt_column = major_column + 4
-            local gem_column = major_column + 5
 
             if column_index == 1 then
                 return compare_sort_values(left.class or '', right.class or '', ascending)
@@ -1727,15 +1870,6 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
             if show_components and column_index == water_column then
                 return compare_tier_11_deficits(left, right, 'water', ascending)
             end
-            if show_cold_bargain and column_index == frostbloom_column then
-                return compare_cold_bargain_item(left, right, 'frostbloom', ascending)
-            end
-            if show_cold_bargain and column_index == pelt_column then
-                return compare_cold_bargain_item(left, right, 'pelt', ascending)
-            end
-            if show_cold_bargain and column_index == gem_column then
-                return compare_cold_bargain_item(left, right, 'gem', ascending)
-            end
             return compare_sort_values(left.character or '', right.character or '', ascending)
         end
 
@@ -1757,6 +1891,26 @@ local function get_sorted_progress_rows(mode, sort_specs, slot_name)
             end
             if column_index == 6 then
                 return compare_cold_bargain_reward(left, right, ascending)
+            end
+        end
+        if mode == 'aow_cycle' then
+            if column_index == 1 then
+                return compare_sort_values(left.class or '', right.class or '', ascending)
+            end
+            if column_index == 2 then
+                return compare_aow_cycle_item(left, right, 'fjordavind', ascending)
+            end
+            if column_index == 3 then
+                return compare_aow_cycle_item(left, right, 'king_tormax', ascending)
+            end
+            if column_index == 4 then
+                return compare_aow_cycle_item(left, right, 'ragnar', ascending)
+            end
+            if column_index == 5 then
+                return compare_aow_cycle_item(left, right, 'velketor', ascending)
+            end
+            if column_index == 6 then
+                return compare_aow_cycle_progress(left, right, ascending)
             end
         end
         if column_index == 1 then
@@ -1804,11 +1958,11 @@ local function render_mount_dhoom_table()
     )) then
         ImGui.TableSetupColumn('Character', ImGuiTableColumnFlags.DefaultSort)
         ImGui.TableSetupColumn('Class')
-        ImGui.TableSetupColumn('Frostbloom')
-        ImGui.TableSetupColumn('Pelt')
-        ImGui.TableSetupColumn('Gem')
+        ImGui.TableSetupColumn('Frostbloom', ImGuiTableColumnFlags.WidthFixed, 72)
+        ImGui.TableSetupColumn('Pelt', ImGuiTableColumnFlags.WidthFixed, 72)
+        ImGui.TableSetupColumn('Gem', ImGuiTableColumnFlags.WidthFixed, 72)
         ImGui.TableSetupColumn('Progress')
-        ImGui.TableSetupColumn('Mount')
+        ImGui.TableSetupColumn('Mount', ImGuiTableColumnFlags.WidthFixed, 72)
         ImGui.TableHeadersRow()
 
         local rows = get_sorted_progress_rows('cold_bargain', ImGui.TableGetSortSpecs())
@@ -1846,7 +2000,7 @@ local function render_mount_dhoom_table()
 
             ImGui.TableNextColumn()
             if cold_bargain then
-                colored_text(cold_bargain.reward_owned and COLOR_COMPLETE or COLOR_MUTED,
+                render_status_icon(cold_bargain.reward_owned == true,
                     cold_bargain.reward_owned and 'Owned' or 'Not Owned')
             else
                 colored_text(COLOR_MUTED, '--')
@@ -1857,15 +2011,109 @@ local function render_mount_dhoom_table()
     end
 end
 
+local function render_aow_cycle_table()
+    local selected_tier = state.selected_tier or DEFAULT_TIER_KEY
+    if selected_tier ~= 'Tier 11' then
+        return
+    end
+
+    if ImGui.BeginTable('EZProgressAoWCycle##' .. selected_tier, 7, bit32.bor(
+        ImGuiTableFlags.RowBg,
+        ImGuiTableFlags.BordersInner,
+        ImGuiTableFlags.BordersOuter,
+        ImGuiTableFlags.SizingFixedFit,
+        ImGuiTableFlags.Resizable,
+        ImGuiTableFlags.Sortable,
+        ImGuiTableFlags.NoSavedSettings
+    )) then
+        ImGui.TableSetupColumn('Character', ImGuiTableColumnFlags.DefaultSort)
+        ImGui.TableSetupColumn('Fjordavind', ImGuiTableColumnFlags.WidthFixed, 84)
+        ImGui.TableSetupColumn('King Tormax', ImGuiTableColumnFlags.WidthFixed, 84)
+        ImGui.TableSetupColumn('Ragnar', ImGuiTableColumnFlags.WidthFixed, 84)
+        ImGui.TableSetupColumn('Velketor', ImGuiTableColumnFlags.WidthFixed, 84)
+        ImGui.TableSetupColumn('Progress')
+        ImGui.TableHeadersRow()
+
+        local rows = get_sorted_progress_rows('aow_cycle', ImGui.TableGetSortSpecs())
+        for _, row in ipairs(rows) do
+            local progress = row.progress
+            local aow_cycle = progress and progress.aow_cycle or nil
+
+            ImGui.TableNextRow()
+
+            ImGui.TableNextColumn()
+            ImGui.Text((progress.character or 'Unknown') .. (row.is_self and ' (You)' or ''))
+
+            for _, key in ipairs(TIER_11_AOW_CYCLE_ORDER) do
+                ImGui.TableNextColumn()
+                if aow_cycle and aow_cycle.item_counts then
+                    local count = aow_cycle.item_counts[key] or 0
+                    render_status_icon(count > 0,
+                        string.format('%s: %s', TIER_11_AOW_CYCLE_ITEMS[key] or key, count > 0 and string.format('Owned (%d)', count) or 'Missing'))
+                else
+                    colored_text(COLOR_MUTED, '--')
+                end
+            end
+
+            ImGui.TableNextColumn()
+            if aow_cycle then
+                if aow_cycle.completed then
+                    render_status_icon(true, 'AoW Cycle complete')
+                else
+                    colored_text(COLOR_WARN, string.format('%d/%d', aow_cycle.collected or 0, aow_cycle.total or #TIER_11_AOW_CYCLE_ORDER))
+                end
+            else
+                colored_text(COLOR_MUTED, '--')
+            end
+        end
+
+        ImGui.EndTable()
+    end
+end
+
+local function render_ancillary_quests_popup()
+    local selected_tier = state.selected_tier or DEFAULT_TIER_KEY
+    if selected_tier ~= 'Tier 11' then
+        return
+    end
+
+    if ImGui.BeginPopup('Ancillary Quests##EZProgressTier11', ImGuiWindowFlags.AlwaysAutoResize) then
+        colored_text(COLOR_HEADER, 'Tier 11 Ancillary Quests')
+        colored_text(COLOR_MUTED, 'Tracking non-armor T11 progression items and side quests.')
+        ImGui.Separator()
+
+        if ImGui.CollapsingHeader('Mount Dhoom', ImGuiTreeNodeFlags.DefaultOpen) then
+            render_mount_dhoom_summary(state.local_progress)
+            ImGui.Separator()
+            colored_text(COLOR_HEADER, 'Group Overview')
+            render_mount_dhoom_table()
+        end
+
+        ImGui.Separator()
+        if ImGui.CollapsingHeader('AoW Cycle', ImGuiTreeNodeFlags.DefaultOpen) then
+            render_aow_cycle_summary(state.local_progress)
+            ImGui.Separator()
+            colored_text(COLOR_HEADER, 'Group Overview')
+            render_aow_cycle_table()
+        end
+
+        ImGui.Spacing()
+        if ImGui.Button('Close##EZProgressAncillaryQuests') then
+            ImGui.CloseCurrentPopup()
+        end
+
+        ImGui.EndPopup()
+    end
+end
+
 local function render_peer_summary_table()
     local selected_tier = state.selected_tier or DEFAULT_TIER_KEY
     local show_components = selected_tier == 'Tier 11'
     local show_faction = selected_tier == 'Tier 10'
     local show_plagueborn = show_faction
     local show_augment = selected_tier == 'Tier 11' and has_tracked_slot('Augment')
-    local show_cold_bargain = selected_tier == 'Tier 11' and state.track_mount_dhoom == true
     local show_halloween_hos = selected_tier == 'Halloween - HoS' and has_tracked_slot('Augment')
-    local column_count = show_components and (show_faction and 12 or 10) or (show_faction and 6 or 4)
+    local column_count = show_components and (show_faction and 9 or 7) or (show_faction and 6 or 4)
     if show_augment then
         column_count = column_count + 1
     end
@@ -1894,11 +2142,6 @@ local function render_peer_summary_table()
             ImGui.TableSetupColumn('Majors')
             ImGui.TableSetupColumn('Minors')
             ImGui.TableSetupColumn('Waters')
-        end
-        if show_cold_bargain then
-            ImGui.TableSetupColumn('Frostbloom')
-            ImGui.TableSetupColumn('Pelt')
-            ImGui.TableSetupColumn('Gem')
         end
         ImGui.TableHeadersRow()
 
@@ -1942,28 +2185,6 @@ local function render_peer_summary_table()
 
             local tooltip = 'Missing pieces:\n' .. table.concat(missing_pieces, '\n')
             ImGui.SetTooltip(tooltip)
-        end
-
-        local function render_cold_bargain_tooltip(progress)
-            if not progress or not progress.cold_bargain then
-                return
-            end
-
-            local cold_bargain = progress.cold_bargain
-            local lines = {
-                'A Cold Bargain',
-                string.format('Reward: %s', TIER_11_COLD_BARGAIN_REWARD),
-            }
-
-            local item_order = { 'frostbloom', 'pelt', 'gem' }
-            for _, key in ipairs(item_order) do
-                table.insert(lines, string.format('%s: %d / %d', TIER_11_COLD_BARGAIN_ITEMS[key],
-                    cold_bargain.item_counts and cold_bargain.item_counts[key] or 0,
-                    TIER_11_COLD_BARGAIN_REQUIRED))
-            end
-
-            table.insert(lines, string.format('Mount Owned: %s', cold_bargain.reward_owned and 'Yes' or 'No'))
-            ImGui.SetTooltip(table.concat(lines, '\n'))
         end
 
         local function add_row(progress, is_self)
@@ -2057,32 +2278,6 @@ local function render_peer_summary_table()
                     colored_text(deficits.water == 0 and COLOR_COMPLETE or COLOR_COMPONENTS, tostring(deficits.water))
                 else
                     colored_text(COLOR_MUTED, '--')
-                end
-            end
-
-            if show_cold_bargain then
-                local item_order = { 'frostbloom', 'pelt', 'gem' }
-                for _, key in ipairs(item_order) do
-                    ImGui.TableNextColumn()
-                    if progress.tier_key == 'Tier 11' and progress.cold_bargain and progress.cold_bargain.item_counts then
-                        local cold_bargain = progress.cold_bargain
-                        local text
-                        local color
-                        if cold_bargain.reward_owned then
-                            text = 'Done'
-                            color = COLOR_COMPLETE
-                        else
-                            local count = cold_bargain.item_counts[key] or 0
-                            color = count >= TIER_11_COLD_BARGAIN_REQUIRED and COLOR_COMPLETE or COLOR_INCOMPLETE
-                            text = string.format('%d/%d', count, TIER_11_COLD_BARGAIN_REQUIRED)
-                        end
-                        colored_text(color, text)
-                        if ImGui.IsItemHovered() then
-                            render_cold_bargain_tooltip(progress)
-                        end
-                    else
-                        colored_text(COLOR_MUTED, '--')
-                    end
                 end
             end
         end
@@ -2362,6 +2557,14 @@ local function display_gui()
         end
 
         ImGui.Separator()
+        if selected_tier == 'Tier 11' then
+            if ImGui.Button('Ancillary Quests##EZProgressTier11') then
+                ImGui.OpenPopup('Ancillary Quests##EZProgressTier11')
+            end
+            ImGui.SameLine()
+            colored_text(COLOR_MUTED, 'Open T11 side-quest tracking.')
+        end
+
         if ImGui.CollapsingHeader('My Items', ImGuiTreeNodeFlags.DefaultOpen) then
             render_progress_block(state.local_progress, true)
         end
@@ -2375,14 +2578,6 @@ local function display_gui()
 
         ImGui.Separator()
         colored_text(COLOR_HEADER, 'Group Overview')
-        if selected_tier == 'Tier 11' then
-            ImGui.SameLine()
-            local track_mount_dhoom = state.track_mount_dhoom == true
-            local value, changed = ImGui.Checkbox('Track Mount Dhoom', track_mount_dhoom)
-            if changed then
-                state.track_mount_dhoom = value == true
-            end
-        end
         if ImGui.BeginTabBar('EZProgressOverviewTabs', ImGuiTabBarFlags.None) then
             if ImGui.BeginTabItem('Overall') then
                 render_peer_summary_table()
@@ -2402,13 +2597,10 @@ local function display_gui()
                 end
             end
 
-            if selected_tier == 'Tier 11' and state.track_mount_dhoom == true and ImGui.BeginTabItem('Mount Dhoom') then
-                render_mount_dhoom_table()
-                ImGui.EndTabItem()
-            end
-
             ImGui.EndTabBar()
         end
+
+        render_ancillary_quests_popup()
 
     end
 

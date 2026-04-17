@@ -1989,6 +1989,7 @@ M.tier_order = {
     'Tier 11',
     M.default_tier_key,
     'Tier 12.5',
+    'Tier 13',
     'Halloween - HoS',
     'Halloween - Thule Dream',
 }
@@ -2426,28 +2427,8 @@ M['Tier 12.5'] = {
     },
 }
 
-M['Halloween - HoS'] = {
-    label = 'Halloween - HoS',
-    sets_by_armor_type = {
-        Plate = make_halloween_hos_set('Plate'),
-        Chain = make_halloween_hos_set('Chain'),
-        Leather = make_halloween_hos_set('Leather'),
-        Cloth = make_halloween_hos_set('Cloth'),
-    },
-}
-
-M['Halloween - Thule Dream'] = {
-    label = 'Halloween - Thule Dream',
-    sets_by_armor_type = {
-        Plate = make_halloween_thule_dream_set('Plate'),
-        Chain = make_halloween_thule_dream_set('Chain'),
-        Leather = make_halloween_thule_dream_set('Leather'),
-        Cloth = make_halloween_thule_dream_set('Cloth'),
-    },
-}
-
-M[M.default_tier_key] = {
-    label = M.default_tier_key,
+M['Tier 12'] = {
+    label = 'Tier 12',
     sets_by_armor_type = {
         Plate = {
             class_group = 'Plate',
@@ -2502,6 +2483,84 @@ M[M.default_tier_key] = {
                 make_piece_def('Leather Vest of the Blightclaw Stalker', 'Chest', { 'Reinforced Leather Vest of the Blightclaw Stalker' }),
                 make_piece_def('Leather Leggings of the Blightclaw Stalker', 'Legs', { 'Reinforced Leather Leggings of the Blightclaw Stalker' }),
                 make_piece_def('Leather Bindings of the Blightclaw Stalker', 'Wrist', { 'Reinforced Leather Bindings of the Blightclaw Stalker' }),
+            },
+        },
+    },
+}
+
+M['Halloween - HoS'] = {
+    label = 'Halloween - HoS',
+    sets_by_armor_type = {
+        Plate = make_halloween_hos_set('Plate'),
+        Chain = make_halloween_hos_set('Chain'),
+        Leather = make_halloween_hos_set('Leather'),
+        Cloth = make_halloween_hos_set('Cloth'),
+    },
+}
+
+M['Halloween - Thule Dream'] = {
+    label = 'Halloween - Thule Dream',
+    sets_by_armor_type = {
+        Plate = make_halloween_thule_dream_set('Plate'),
+        Chain = make_halloween_thule_dream_set('Chain'),
+        Leather = make_halloween_thule_dream_set('Leather'),
+        Cloth = make_halloween_thule_dream_set('Cloth'),
+    },
+}
+
+M['Tier 13'] = {
+    label = 'Tier 13',
+    sets_by_armor_type = {
+        Plate = {
+            class_group = 'Plate',
+            set_name = 'Fennin Ro',
+            pieces = {
+                make_piece_def('Plate Helmet of Fennin Ro', 'Head'),
+                make_piece_def('Breastplate of Fennin Ro', 'Chest'),
+                make_piece_def('Plate Armguards of Fennin Ro', 'Arms'),
+                make_piece_def('Legplates of Fennin Ro', 'Legs'),
+                make_piece_def('Plate Handguards of Fennin Ro', 'Hands'),
+                make_piece_def('Plate Wristguards of Fennin Ro', 'Wrist'),
+                make_piece_def('Plate Sabatons of Fennin Ro', 'Feet'),
+            },
+        },
+        Chain = {
+            class_group = 'Chain',
+            set_name = 'Saryrn',
+            pieces = {
+                make_piece_def('Chain Helmet of Saryrn', 'Head'),
+                make_piece_def('Chain Armguards of Saryrn', 'Arms'),
+                make_piece_def('Chain Handguards of Saryrn', 'Hands'),
+                make_piece_def('Chain Sabatons of Saryrn', 'Feet'),
+                make_piece_def('Chain Hauberk of Saryrn', 'Chest'),
+                make_piece_def('Chain Legguards of Saryrn', 'Legs'),
+                make_piece_def('Chain Wristguards of Saryrn', 'Wrist'),
+            },
+        },
+        Cloth = {
+            class_group = 'Cloth',
+            set_name = 'Mayong Mistmoore',
+            pieces = {
+                make_piece_def('Silk Crown of Mayong Mistmoore', 'Head'),
+                make_piece_def('Silk Gloves of Mayong Mistmoore', 'Hands'),
+                make_piece_def('Silk Leggings of Mayong Mistmoore', 'Legs'),
+                make_piece_def('Silk Robes of Mayong Mistmoore', 'Chest'),
+                make_piece_def('Silk Sleeves of Mayong Mistmoore', 'Arms'),
+                make_piece_def('Silk Slippers of Mayong Mistmoore', 'Feet'),
+                make_piece_def('Silk Wristguards of Mayong Mistmoore', 'Wrist'),
+            },
+        },
+        Leather = {
+            class_group = 'Leather',
+            set_name = "Dorvias N'Keth",
+            pieces = {
+                make_piece_def("Leather Hood of Dorvias N'Keth", 'Head'),
+                make_piece_def("Leather Sleeves of Dorvias N'Keth", 'Arms'),
+                make_piece_def("Leather Grasp of Dorvias N'Keth", 'Hands'),
+                make_piece_def("Leather Boots of Dorvias N'Keth", 'Feet'),
+                make_piece_def("Leather Vest of Dorvias N'Keth", 'Chest'),
+                make_piece_def("Leather Leggings of Dorvias N'Keth", 'Legs'),
+                make_piece_def("Leather Bindings of Dorvias N'Keth", 'Wrist'),
             },
         },
     },
