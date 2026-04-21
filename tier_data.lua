@@ -2552,18 +2552,36 @@ M['Tier 13'] = {
         },
         Leather = {
             class_group = 'Leather',
-            set_name = "Dorvias N'Keth",
+            set_name = "Dorvias N’Keth",
             pieces = {
-                make_piece_def("Leather Hood of Dorvias N'Keth", 'Head'),
-                make_piece_def("Leather Sleeves of Dorvias N'Keth", 'Arms'),
-                make_piece_def("Leather Grasp of Dorvias N'Keth", 'Hands'),
-                make_piece_def("Leather Boots of Dorvias N'Keth", 'Feet'),
-                make_piece_def("Leather Vest of Dorvias N'Keth", 'Chest'),
-                make_piece_def("Leather Leggings of Dorvias N'Keth", 'Legs'),
-                make_piece_def("Leather Bindings of Dorvias N'Keth", 'Wrist'),
+                make_piece_def("Leather Hood of Dorvias N’Keth", 'Head'),
+                make_piece_def("Leather Sleeves of Dorvias N’Keth", 'Arms'),
+                make_piece_def("Leather Grasp of Dorvias N’Keth", 'Hands'),
+                make_piece_def("Leather Boots of Dorvias N’Keth", 'Feet'),
+                make_piece_def("Leather Vest of Dorvias N’Keth", 'Chest'),
+                make_piece_def("Leather Leggings of Dorvias N’Keth", 'Legs'),
+                make_piece_def("Leather Bindings of Dorvias N’Keth", 'Wrist'),
             },
         },
     },
+}
+
+M.zone_to_tier = {
+    ['storms'] = 'Tier 1',
+    ['honor'] = 'Tier 3',
+    ['airplane'] = 'Tier 4',
+    ['illsalin'] = 'Tier 5',
+    ['anguish'] = 'Tier 6',
+    ['loping'] = 'Tier 7',
+    ['commons'] = 'Tier 8',
+    ['veeshan'] = 'Tier 9',
+    ['sunderock'] = 'Tier 10',
+    ['kael'] = 'Tier 11',
+    ['blightfire'] = 'Tier 12',
+    ['direwind'] = 'Tier 12.5',
+    ['dranik'] = 'Tier 13',
+    ['shade'] = 'Halloween - HoS',
+    ['thule'] = 'Halloween - Thule Dream',
 }
 
 return M

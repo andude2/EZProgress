@@ -64,6 +64,8 @@ local status_icons = {
     missing = nil,
 }
 
+local is_fresh_state = _G.ezprogress_state == nil
+
 _G.ezprogress_state = _G.ezprogress_state or {
     actor_handle = nil,
     local_progress = nil,
@@ -182,6 +184,25 @@ end
 
 local function normalize_lookup_key(text)
     return normalize_whitespace(text):lower()
+end
+
+local function get_default_tier_for_zone()
+    local zone_name = normalize_lookup_key(mq.TLO.Zone.Name() or '')
+    local zone_map = EZPROGRESS_DATA.zone_to_tier or {}
+    for pattern, tier in pairs(zone_map) do
+        if zone_name:find(pattern, 1, true) then
+            return tier
+        end
+    end
+    return DEFAULT_TIER_KEY
+end
+
+if is_fresh_state then
+    local zone_tier = get_default_tier_for_zone()
+    if zone_tier ~= DEFAULT_TIER_KEY then
+        state.selected_tier = zone_tier
+        printf('%s \agAuto-selected tier: \at%s\ax (zone: \ay%s\ax).', HEADER, zone_tier, mq.TLO.Zone.Name() or 'Unknown')
+    end
 end
 
 local function extract_character_name(name)
