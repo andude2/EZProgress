@@ -1,8 +1,9 @@
-local function make_piece_def(name, slot_name, alternates)
+local function make_piece_def(name, slot_name, alternates, item_id)
     return {
         name = name,
         slot = slot_name,
         alternates = alternates or {},
+        id = item_id,
     }
 end
 
@@ -464,7 +465,7 @@ M['Tier 2'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Pyromancer\'s Cowl', 'Head', { 'Pyromancer\'s Cowl Pattern' }),
-                make_piece_def('Pyromancer\'s Robe', 'Chest', { 'Pyromancer\'s Robe Pattern' }),
+                make_piece_def('Pyromancer\'s Robes', 'Chest', { 'Pyromancer\'s Robe Pattern' }),
                 make_piece_def('Pyromancer\'s Sleeves', 'Arms', { 'Pyromancer\'s Sleeves Pattern' }),
                 make_piece_def('Pyromancer\'s Wristcuffs', 'Wrist', { 'Pyromancer\'s Wristcuffs Pattern' }),
                 make_piece_def('Pyromancer\'s Breeches', 'Legs', { 'Pyromancer\'s Breeches Pattern' }),
@@ -892,7 +893,7 @@ M['Tier 4'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Solusek Ro\'s Cowl', 'Head', { 'Solusek Ro\'s Cowl Pattern' }),
-                make_piece_def('Solusek Ro\'s Robes', 'Chest', { 'Solusek Ro\'s Robe Patterns' }),
+                make_piece_def('Solusek Ro\'s Robes', 'Chest', { 'Solusek Ro\'s Robe Patterns' }, 101715),
                 make_piece_def('Solusek Ro\'s Sleeves', 'Arms', { 'Solusek Ro\'s Sleeves Pattern' }),
                 make_piece_def('Solusek Ro\'s Wristcuffs', 'Wrist', { 'Solusek Ro\'s Wristcuffs Pattern' }),
                 make_piece_def('Solusek Ro\'s Breeches', 'Legs', { 'Solusek Ro\'s Breeches Pattern' }),
@@ -2571,6 +2572,7 @@ M.zone_to_tier = {
     ['honor'] = 'Tier 3',
     ['airplane'] = 'Tier 4',
     ['illsalin'] = 'Tier 5',
+    ['the abyss'] = 'Tier 5',
     ['anguish'] = 'Tier 6',
     ['loping'] = 'Tier 7',
     ['commons'] = 'Tier 8',

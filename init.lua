@@ -776,10 +776,16 @@ local function progress_changed(previous, updated)
     return false
 end
 
-local function count_item_owned(item_name)
-    local query = '=' .. item_name
-    local inv_count = mq.TLO.FindItemCount(query)() or 0
-    local bank_count = mq.TLO.FindItemBankCount(query)() or 0
+local function count_item_owned(item_name, item_id)
+    local inv_count, bank_count
+    if item_id and item_id > 0 then
+        inv_count = mq.TLO.FindItemCount(tostring(item_id))() or 0
+        bank_count = mq.TLO.FindItemBankCount(tostring(item_id))() or 0
+    else
+        local query = '=' .. item_name
+        inv_count = mq.TLO.FindItemCount(query)() or 0
+        bank_count = mq.TLO.FindItemBankCount(query)() or 0
+    end
     return inv_count + bank_count
 end
 
@@ -1138,7 +1144,7 @@ local function build_local_progress(tier_key, tier_10_faction_key)
 
     for _, item_name in ipairs(set_config.pieces) do
         local piece_def = normalize_piece_def(item_name)
-        local direct_count = count_item_owned(piece_def.name)
+        local direct_count = count_item_owned(piece_def.name, piece_def.id)
         local alternate_count = 0
         local owned_item_name = nil
         if direct_count > 0 then
