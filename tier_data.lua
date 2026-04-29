@@ -892,7 +892,7 @@ M['Tier 4'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Solusek Ro\'s Cowl', 'Head', { 'Solusek Ro\'s Cowl Pattern' }),
-                make_piece_def('Solusek Ro\'s Robe', 'Chest', { 'Solusek Ro\'s Robe Patterns' }),
+                make_piece_def('Solusek Ro\'s Robes', 'Chest', { 'Solusek Ro\'s Robe Patterns' }),
                 make_piece_def('Solusek Ro\'s Sleeves', 'Arms', { 'Solusek Ro\'s Sleeves Pattern' }),
                 make_piece_def('Solusek Ro\'s Wristcuffs', 'Wrist', { 'Solusek Ro\'s Wristcuffs Pattern' }),
                 make_piece_def('Solusek Ro\'s Breeches', 'Legs', { 'Solusek Ro\'s Breeches Pattern' }),
