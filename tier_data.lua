@@ -1107,7 +1107,7 @@ M['Tier 5'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Solusek Ro\'s Cowl II', 'Head', { 'Solusek Ro\'s Cowl Pattern II' }),
-                make_piece_def('Solusek Ro\'s Robe II', 'Chest', { 'Solusek Ro\'s Robe Pattern II' }),
+                make_piece_def('Solusek Ro\'s Robe II', 'Chest', { 'Solusek Ro\'s Robe Pattern II' }, 101725),
                 make_piece_def('Solusek Ro\'s Sleeves II', 'Arms', { 'Solusek Ro\'s Sleeves Pattern II' }),
                 make_piece_def('Solusek Ro\'s Wristcuffs II', 'Wrist', { 'Solusek Ro\'s Wristcuffs Pattern II' }),
                 make_piece_def('Solusek Ro\'s Breeches II', 'Legs', { 'Solusek Ro\'s Breeches Pattern II' }),
@@ -1321,7 +1321,7 @@ M['Tier 6'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Solusek Ro\'s Cowl III', 'Head', { 'Anguish Augment Head' }),
-                make_piece_def('Solusek Ro\'s Robe III', 'Chest', { 'Anguish Augment Chest' }),
+                make_piece_def('Solusek Ro\'s Robe III', 'Chest', { 'Anguish Augment Chest' }, 101735),
                 make_piece_def('Solusek Ro\'s Sleeves III', 'Arms', { 'Anguish Augment Arms' }),
                 make_piece_def('Solusek Ro\'s Wristcuffs III', 'Wrist', { 'Anguish Augment Wrist' }),
                 make_piece_def('Solusek Ro\'s Breeches III', 'Legs', { 'Anguish Augment Legs' }),
@@ -1535,7 +1535,7 @@ M['Tier 7'] = {
             set_name = 'WIZ',
             pieces = {
                 make_piece_def('Solusek Ro\'s Cowl IV', 'Head', { 'Loping Plains Head Pattern' }),
-                make_piece_def('Solusek Ro\'s Robe IV', 'Chest', { 'Loping Plains Chest Pattern' }),
+                make_piece_def('Solusek Ro\'s Robe IV', 'Chest', { 'Loping Plains Chest Pattern' }, 101745),
                 make_piece_def('Solusek Ro\'s Sleeves IV', 'Arms', { 'Loping Plains Arms Pattern' }),
                 make_piece_def('Solusek Ro\'s Wristcuffs IV', 'Wrist', { 'Loping Plains Wrist Pattern' }),
                 make_piece_def('Solusek Ro\'s Breeches IV', 'Legs', { 'Loping Plains Legs Pattern' }),
